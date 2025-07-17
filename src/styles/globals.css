@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --breakpoint-3xl: 120rem;
+}
+
+body {
+  color: var(--neutral-1000);
+  background: var(--neutral-0);
+  font-family: Araboto, Inter, sans-serif;
+}

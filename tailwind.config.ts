@@ -1,3 +1,4 @@
+import { zhexFundations } from "./src/styles/fundations";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -6,11 +7,17 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class", // ou "media" se preferir
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      colors: zhexFundations.colors,
+      fontFamily: {
+        araboto: 'var(--font-araboto), "Araboto", sans-serif',
+        inter: 'var(--font-inter), "Inter", sans-serif',
+        signature: 'var(--font-style-script), "Style Script", cursive',
+      },
+      maxWidth: {
+        ...zhexFundations.containers,
       },
     },
   },
