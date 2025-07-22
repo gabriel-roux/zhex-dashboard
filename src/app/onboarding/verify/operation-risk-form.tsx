@@ -1,72 +1,72 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import * as Slider from "@radix-ui/react-slider";
-import { ResponsiveContainer, AreaChart, Area, Tooltip } from "recharts";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react'
+import * as Slider from '@radix-ui/react-slider'
+import { ResponsiveContainer, AreaChart, Area, Tooltip } from 'recharts'
+import { motion } from 'framer-motion'
 
-type RiskLevel = 1 | 2 | 3;
+type RiskLevel = 1 | 2 | 3
 
 const RISK_CONFIG: Record<
   RiskLevel,
   {
-    title: string;
-    subtitle: string;
-    chargeback: string;
-    knobPosition: number; // 0, 50, 100
-    circlePosition: number; // 0, 50, 100
-    color: string;
+    title: string
+    subtitle: string
+    chargeback: string
+    knobPosition: number // 0, 50, 100
+    circlePosition: number // 0, 50, 100
+    color: string
   }
 > = {
   1: {
-    title: "Nível 1 <strong>( Conservador )</strong>",
+    title: 'Nível 1 <strong>( Conservador )</strong>',
     subtitle:
-      "Começamos com limites conservadores e eles podem escalar conforme seu desempenho. Direcionamos suas vendas para as adquirentes mais eficientes.",
-    chargeback: "Até 1% Limite de chargeback",
+      'Começamos com limites conservadores e eles podem escalar conforme seu desempenho. Direcionamos suas vendas para as adquirentes mais eficientes.',
+    chargeback: 'Até 1% Limite de chargeback',
     knobPosition: 0,
     circlePosition: 3,
-    color: "#16A34A",
+    color: '#16A34A',
   },
   2: {
-    title: "Nível 2 <strong>( Moderado )</strong>",
+    title: 'Nível 2 <strong>( Moderado )</strong>',
     subtitle:
-      "Limites flexíveis que evoluem de acordo com sua performance real. O direcionamento inteligente garante a melhor aprovação e custo.",
-    chargeback: "1% a 3% Limite de chargeback",
+      'Limites flexíveis que evoluem de acordo com sua performance real. O direcionamento inteligente garante a melhor aprovação e custo.',
+    chargeback: '1% a 3% Limite de chargeback',
     knobPosition: 50,
     circlePosition: 50,
-    color: "#FACC15",
+    color: '#FACC15',
   },
   3: {
-    title: "Nível 3 <strong>( Alto Risco )</strong>",
+    title: 'Nível 3 <strong>( Alto Risco )</strong>',
     subtitle:
-      "Aceitamos índices maiores, ajustando limites continuamente segundo seus resultados. Direcionamos automaticamente para as adquirentes mais adequadas.",
-    chargeback: "3% a 5% Limite de chargeback",
+      'Aceitamos índices maiores, ajustando limites continuamente segundo seus resultados. Direcionamos automaticamente para as adquirentes mais adequadas.',
+    chargeback: '3% a 5% Limite de chargeback',
     knobPosition: 100,
     circlePosition: 97,
-    color: "#EF4444",
+    color: '#EF4444',
   },
-};
+}
 
 export function OperationRisk() {
-  const [level, setLevel] = useState<RiskLevel>(1);
+  const [level, setLevel] = useState<RiskLevel>(1)
   const [sliderValue, setSliderValue] = useState<number>(
-    RISK_CONFIG[1].knobPosition
-  );
+    RISK_CONFIG[1].knobPosition,
+  )
 
-  const cfg = RISK_CONFIG[level];
+  const cfg = RISK_CONFIG[level]
 
   useEffect(() => {
-    setSliderValue(cfg.knobPosition);
-  }, [level]);
+    setSliderValue(cfg.knobPosition)
+  }, [level])
 
-  const handleDrag = (value: number[]) => setSliderValue(value[0]);
+  const handleDrag = (value: number[]) => setSliderValue(value[0])
 
   const handleCommit = (value: number[]) => {
-    const v = value[0];
-    if (v < 33) setLevel(1);
-    else if (v < 66) setLevel(2);
-    else setLevel(3);
-  };
+    const v = value[0]
+    if (v < 33) setLevel(1)
+    else if (v < 66) setLevel(2)
+    else setLevel(3)
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,7 +100,7 @@ export function OperationRisk() {
                     : level === 2
                       ? 8 + Math.cos(i) * 4
                       : 14 + (Math.sin(i) + Math.cos(i)) * 4,
-              })
+              }),
             )}
           >
             <defs>
@@ -139,7 +139,7 @@ export function OperationRisk() {
               className="absolute h-5 w-full rounded-full transition-colors duration-300"
               style={{
                 background:
-                  "linear-gradient(90deg, #16A34A 0%, #FACC15 50%, #EF4444 100%)",
+                  'linear-gradient(90deg, #16A34A 0%, #FACC15 50%, #EF4444 100%)',
               }}
             />
             {/* static markers */}
@@ -156,7 +156,7 @@ export function OperationRisk() {
             <Slider.Thumb asChild>
               <motion.div
                 layout
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 className="block h-8 w-8 rounded-full border-4 border-white cursor-pointer"
                 style={{ backgroundColor: cfg.color }}
               />
@@ -174,5 +174,5 @@ export function OperationRisk() {
         </div>
       </div>
     </div>
-  );
+  )
 }

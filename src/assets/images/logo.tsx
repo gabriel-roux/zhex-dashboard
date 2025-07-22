@@ -1,24 +1,22 @@
 interface LogoProps {
-  className?: string;
-  variant?: "default" | "yellow" | "blue" | "white";
-  withText?: boolean;
+  className?: string
+  variant?: 'default' | 'yellow' | 'blue' | 'white'
+  withText?: boolean
 }
 
-export function Logo({ className, variant = "default", withText }: LogoProps) {
+export function Logo({ className, variant = 'default', withText }: LogoProps) {
   const colorMap: Record<string, string> = {
-    default: "#000",
-    yellow: "#DEDF54",
-    blue: "#0055E1",
-    white: "#FFFFFF",
-  };
+    default: '#000',
+    yellow: '#DEDF54',
+    blue: '#0055E1',
+    white: '#FFFFFF',
+  }
 
   return (
     <svg
-      width={
-        withText ? "637" : "460"
-      }
+      width={withText ? '637' : '460'}
       height="90"
-      viewBox={withText ? "0 0 637 90" : "0 0 460 90"}
+      viewBox={withText ? '0 0 637 90' : '0 0 460 90'}
       fill="none"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
@@ -144,9 +142,9 @@ export function Logo({ className, variant = "default", withText }: LogoProps) {
           <path
             d="M563.589 103.025C563.095 103.025 562.671 102.848 562.317 102.494C561.963 102.14 561.786 101.716 561.786 101.222C561.786 100.728 561.963 100.304 562.317 99.9504C562.671 99.5965 563.095 99.4195 563.589 99.4195C564.083 99.4195 564.507 99.5965 564.861 99.9504C565.215 100.304 565.392 100.728 565.392 101.222C565.392 101.55 565.309 101.85 565.142 102.124C564.981 102.398 564.764 102.618 564.491 102.785C564.224 102.945 563.923 103.025 563.589 103.025Z"
             fill={colorMap[variant]}
-          />{" "}
+          />{' '}
         </>
       )}
     </svg>
-  );
+  )
 }

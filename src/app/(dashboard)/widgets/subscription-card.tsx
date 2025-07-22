@@ -1,4 +1,4 @@
-import { ArrowsOutSimpleIcon, ClockClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowsOutSimpleIcon, ClockClockwiseIcon } from '@phosphor-icons/react'
 
 import {
   ResponsiveContainer,
@@ -8,7 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-} from "recharts";
+} from 'recharts'
 
 const subscriptionData = [
   { day: 1, value: 1950 },
@@ -23,7 +23,7 @@ const subscriptionData = [
   { day: 13, value: 2400 },
   { day: 17, value: 1950 },
   { day: 18, value: 3250 },
-];
+]
 
 // Tooltip personalizado
 const CustomTooltip = ({
@@ -31,23 +31,23 @@ const CustomTooltip = ({
   payload,
   label,
 }: {
-  active?: boolean;
-  payload?: { value: number }[];
-  label?: number;
+  active?: boolean
+  payload?: { value: number }[]
+  label?: number
 }) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) return null
 
-  const value = payload[0].value ?? 0;
+  const value = payload[0].value ?? 0
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white backdrop-blur-md px-3 py-2 shadow-lg text-xs">
       <span className="text-neutral-500">Dia {label}</span>
       <p className="font-semibold text-neutral-950">
-        {value.toLocaleString("pt-BR")} novas
+        {value.toLocaleString('pt-BR')} novas
       </p>
     </div>
-  );
-};
+  )
+}
 
 export function SubscriptionWidget() {
   return (
@@ -67,10 +67,10 @@ export function SubscriptionWidget() {
         <span className="text-xl font-semibold">R$9.400,50</span>
         <span
           className={`text-sm font-medium ${
-            true ? "text-green-secondary-600" : "text-red-secondary-600"
+            true ? 'text-green-secondary-600' : 'text-red-secondary-600'
           } flex items-center gap-1`}
         >
-          {true ? "↑" : "↓"}
+          {true ? '↑' : '↓'}
           6% <span className="text-neutral-400">vs mês passado</span>
         </span>
       </div>
@@ -92,18 +92,24 @@ export function SubscriptionWidget() {
               dataKey="day"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => `${v / 1000}K`}
               ticks={[1000]}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
             />
             {/* bars with gradient */}
             <defs>
-              <linearGradient id="subscriptionGradient" x1="0" x2="0" y1="0" y2="1">
+              <linearGradient
+                id="subscriptionGradient"
+                x1="0"
+                x2="0"
+                y1="0"
+                y2="1"
+              >
                 <stop offset="0%" stopColor="#206FEF" />
                 <stop offset="100%" stopColor="#9DB3FF" />
               </linearGradient>
@@ -115,12 +121,12 @@ export function SubscriptionWidget() {
               radius={[8, 8, 8, 8]}
             />
             <Tooltip
-              cursor={{ fill: "transparent" }}
+              cursor={{ fill: 'transparent' }}
               content={<CustomTooltip />}
             />
           </BarChart>
         </ResponsiveContainer>
       </div>
     </div>
-  );
+  )
 }

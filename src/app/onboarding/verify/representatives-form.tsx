@@ -1,16 +1,12 @@
-"use client";
+'use client'
 
-import { useForm, useWatch } from "react-hook-form";
-import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  TextField,
-  MaskedTextField,
-  SelectField,
-} from "@/components/textfield";
-import { brazilStates } from "@/assets/lists/brazil-states";
-import { UploadIcon } from "@phosphor-icons/react";
+import { useForm, useWatch } from 'react-hook-form'
+import { useEffect } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { TextField, MaskedTextField, SelectField } from '@/components/textfield'
+import { brazilStates } from '@/assets/lists/brazil-states'
+import { UploadIcon } from '@phosphor-icons/react'
 
 /* -------------------------------------------------------------------------- */
 /* Schema                                                                     */
@@ -20,26 +16,26 @@ const individualSchema = z.object({
     .any()
     .refine(
       (file) => file?.length > 0,
-      "Documento do representante é obrigatório."
+      'Documento do representante é obrigatório.',
     ),
-  civilFirstName: z.string().min(1, "Nome é obrigatório."),
-  civilLastName: z.string().min(1, "Sobrenome é obrigatório."),
-  birthDate: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Data inválida."),
-  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido."),
-  email: z.string().email("E‑mail inválido."),
+  civilFirstName: z.string().min(1, 'Nome é obrigatório.'),
+  civilLastName: z.string().min(1, 'Sobrenome é obrigatório.'),
+  birthDate: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Data inválida.'),
+  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido.'),
+  email: z.string().email('E‑mail inválido.'),
 
-  phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido."),
+  phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone inválido.'),
 
-  address: z.string().min(1, "Endereço é obrigatório."),
-  addressNumber: z.string().min(1, "Número é obrigatório."),
-  city: z.string().min(1, "Cidade é obrigatória."),
-  state: z.string().length(2, "UF inválida."),
-  zip: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido."),
+  address: z.string().min(1, 'Endereço é obrigatório.'),
+  addressNumber: z.string().min(1, 'Número é obrigatório.'),
+  city: z.string().min(1, 'Cidade é obrigatória.'),
+  state: z.string().length(2, 'UF inválida.'),
+  zip: z.string().regex(/^\d{5}-\d{3}$/, 'CEP inválido.'),
 
   politicallyExposed: z.boolean().optional(),
-});
+})
 
-type FormValues = z.infer<typeof individualSchema>;
+type FormValues = z.infer<typeof individualSchema>
 
 /* -------------------------------------------------------------------------- */
 /* Component                                                                  */
@@ -53,28 +49,28 @@ export function RepresentativesForm() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(individualSchema),
-  });
+  })
 
-  const onSubmit = (data: FormValues) => console.log(data);
+  const onSubmit = (data: FormValues) => console.log(data)
 
   /* CEP inteligente ------------------------------------------------------- */
-  const zipValue = useWatch({ control, name: "zip" });
+  const zipValue = useWatch({ control, name: 'zip' })
 
   useEffect(() => {
-    const digits = zipValue?.replace(/\D/g, "");
+    const digits = zipValue?.replace(/\D/g, '')
     if (digits && digits.length === 8) {
       fetch(`https://viacep.com.br/ws/${digits}/json/`)
         .then((r) => r.json())
         .then((d) => {
           if (!d.erro) {
-            setValue("address", d.logradouro || "");
-            setValue("city", d.localidade || "");
-            setValue("state", d.uf || "");
+            setValue('address', d.logradouro || '')
+            setValue('city', d.localidade || '')
+            setValue('state', d.uf || '')
           }
         })
-        .catch(() => {});
+        .catch(() => {})
     }
-  }, [zipValue, setValue]);
+  }, [zipValue, setValue])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -98,7 +94,7 @@ export function RepresentativesForm() {
             id="representativeDocument"
             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             className="hidden"
-            {...register("representativeDocument")}
+            {...register('representativeDocument')}
           />
           <span className="text-zhex-base-500 font-medium px-4 py-1.5 font-araboto items-center flex gap-2 rounded-lg bg-zhex-base-500/5 border border-zhex-base-500 hover:bg-zhex-base-500 hover:text-neutral-0 transition-all duration-300 cursor-pointer">
             <UploadIcon size={20} />
@@ -127,7 +123,7 @@ export function RepresentativesForm() {
           </label>
           <TextField
             placeholder="Primeiro nome"
-            {...register("civilFirstName")}
+            {...register('civilFirstName')}
             error={errors.civilFirstName?.message}
           />
         </div>
@@ -137,7 +133,7 @@ export function RepresentativesForm() {
           </label>
           <TextField
             placeholder="Sobrenome"
-            {...register("civilLastName")}
+            {...register('civilLastName')}
             error={errors.civilLastName?.message}
           />
         </div>
@@ -149,7 +145,7 @@ export function RepresentativesForm() {
           <MaskedTextField
             mask="00/00/0000"
             placeholder="dd/mm/aaaa"
-            {...register("birthDate")}
+            {...register('birthDate')}
             error={errors.birthDate?.message}
           />
         </div>
@@ -162,7 +158,7 @@ export function RepresentativesForm() {
           <MaskedTextField
             mask="000.000.000-00"
             placeholder="000.000.000-00"
-            {...register("cpf")}
+            {...register('cpf')}
             error={errors.cpf?.message}
           />
         </div>
@@ -173,7 +169,7 @@ export function RepresentativesForm() {
           <TextField
             type="email"
             placeholder="exemplo@email.com"
-            {...register("email")}
+            {...register('email')}
             error={errors.email?.message}
           />
         </div>
@@ -184,7 +180,7 @@ export function RepresentativesForm() {
           <MaskedTextField
             mask="(00) 00000-0000"
             placeholder="(11) 91234-5678"
-            {...register("phone")}
+            {...register('phone')}
             error={errors.phone?.message}
           />
         </div>
@@ -197,7 +193,7 @@ export function RepresentativesForm() {
             <MaskedTextField
               mask="00000-000"
               placeholder="00000-000"
-              {...register("zip")}
+              {...register('zip')}
               error={errors.zip?.message}
             />
           </div>
@@ -207,7 +203,7 @@ export function RepresentativesForm() {
             <label className="text-neutral-950 font-araboto">Endereço:</label>
             <TextField
               placeholder="Rua das Flores"
-              {...register("address")}
+              {...register('address')}
               error={errors.address?.message}
             />
           </div>
@@ -217,7 +213,7 @@ export function RepresentativesForm() {
             <label className="text-neutral-950 font-araboto">Número:</label>
             <TextField
               placeholder="123"
-              {...register("addressNumber")}
+              {...register('addressNumber')}
               error={errors.addressNumber?.message}
             />
           </div>
@@ -239,7 +235,7 @@ export function RepresentativesForm() {
             <label className="text-neutral-950 font-araboto">Cidade:</label>
             <TextField
               placeholder="São Paulo"
-              {...register("city")}
+              {...register('city')}
               error={errors.city?.message}
             />
           </div>
@@ -250,15 +246,15 @@ export function RepresentativesForm() {
           <input
             type="checkbox"
             id="pep"
-            {...register("politicallyExposed")}
+            {...register('politicallyExposed')}
             className="w-5 h-5 rounded border border-neutral-100 checked:bg-zhex-base-500 checked:border-zhex-base-500"
           />
           <label htmlFor="pep" className="text-neutral-950 font-araboto">
-            Declaro que sou pessoa politicamente exposta
-            e que os dados fornecidos são verdadeiros.
+            Declaro que sou pessoa politicamente exposta e que os dados
+            fornecidos são verdadeiros.
           </label>
         </div>
       </div>
     </form>
-  );
+  )
 }

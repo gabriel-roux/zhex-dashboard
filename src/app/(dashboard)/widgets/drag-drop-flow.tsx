@@ -1,58 +1,58 @@
-"use client";
+'use client'
 
-import { JSX, useState } from "react";
+import { JSX, useState } from 'react'
 import {
   ArrowsOutCardinalIcon,
   CalendarDotsIcon,
   GearIcon,
   PlusIcon,
-} from "@phosphor-icons/react";
-import { Reorder } from "framer-motion";
+} from '@phosphor-icons/react'
+import { Reorder } from 'framer-motion'
 
-
-import { SubscriptionWidget } from "./subscription-card";
-import { ChargebackControlWidget } from "./chargeback-control-card";
-import { NetVolumeWidget } from "./net-volume-card";
-import { PaymentStatusCard } from "./status-card";
-import { PaymentMethods } from "./payment-methodscard";
-import { TransactionsWidget } from "./transactions-card";
-import { GrossVolumeWidget } from "./gross-volume-card";
-import { RefusedVolumeWidget } from "./refused-volume-card";
-import { SupportWidget } from "./support-card";
-import { TopAffiliatesWidget } from "./top-affiliates";
-import { WidgetsModal } from "./widgets-modal";
-import * as Dialog from "@radix-ui/react-dialog";
+import { SubscriptionWidget } from './subscription-card'
+import { ChargebackControlWidget } from './chargeback-control-card'
+import { NetVolumeWidget } from './net-volume-card'
+import { PaymentStatusCard } from './status-card'
+import { PaymentMethods } from './payment-methodscard'
+import { TransactionsWidget } from './transactions-card'
+import { GrossVolumeWidget } from './gross-volume-card'
+import { RefusedVolumeWidget } from './refused-volume-card'
+import { SupportWidget } from './support-card'
+import { TopAffiliatesWidget } from './top-affiliates'
+import { WidgetsModal } from './widgets-modal'
+import * as Dialog from '@radix-ui/react-dialog'
+import usePersistedState from '@/hooks/usePersistedState'
 
 /**
  * Mapeia o id do widget ao componente renderizável.
  */
 const widgetMap: Record<string, JSX.Element> = {
   subscription: <SubscriptionWidget />,
-  "net-volume": <NetVolumeWidget />,
-  "gross-volume": <GrossVolumeWidget />,
-  "refused-volume": <RefusedVolumeWidget />,
+  'net-volume': <NetVolumeWidget />,
+  'gross-volume': <GrossVolumeWidget />,
+  'refused-volume': <RefusedVolumeWidget />,
   status: <PaymentStatusCard />,
   methods: <PaymentMethods />,
   transactions: <TransactionsWidget />,
   chargeback: <ChargebackControlWidget />,
   affiliates: <TopAffiliatesWidget />,
   support: <SupportWidget />,
-};
+}
 
 export function DragAndDrop() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [originalOrder, setOriginalOrder] = useState<string[]>([]);
-  const [changesMade, setChangesMade] = useState(false);
+  const [isEditing, setIsEditing] = useState(false)
+  const [originalOrder, setOriginalOrder] = useState<string[]>([])
+  const [changesMade, setChangesMade] = useState(false)
 
   /** ordem atual (pode vir da API/localStorage) */
-  const [items, setItems] = useState<string[]>([
-    "subscription",
-    "net-volume",
-    "chargeback",
-  ]);
+  const [items, setItems] = usePersistedState<string[]>('dashboard-widgets', [
+    'subscription',
+    'net-volume',
+    'chargeback',
+  ])
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [targetIdx, setTargetIdx] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false)
+  const [targetIdx, setTargetIdx] = useState<number | null>(null)
 
   return (
     <Dialog.Root open={modalOpen} onOpenChange={setModalOpen}>
@@ -62,32 +62,32 @@ export function DragAndDrop() {
           onClick={() => {
             if (!isEditing) {
               // entra em modo edição
-              setOriginalOrder(items);
-              setChangesMade(false);
-              setIsEditing(true);
+              setOriginalOrder(items)
+              setChangesMade(false)
+              setIsEditing(true)
             } else {
               if (changesMade) {
                 // salvar — aqui você chamaria a API / persistência
-                console.log("Saving new order:", items);
+                console.log('Saving new order:', items)
               }
               // sair do modo edição (tanto salvar quanto cancelar)
-              setIsEditing(false);
+              setIsEditing(false)
             }
           }}
           className={`flex underline items-center font-araboto font-medium gap-2 transition-all ${
             !isEditing
-              ? "text-neutral-1000 hover:text-neutral-900"
+              ? 'text-neutral-1000 hover:text-neutral-900'
               : changesMade
-              ? "text-zhex-base-500 hover:text-zhex-base-600"
-              : "text-red-secondary-500 hover:text-red-secondary-600"
+                ? 'text-zhex-base-500 hover:text-zhex-base-600'
+                : 'text-red-secondary-500 hover:text-red-secondary-600'
           }`}
         >
           <GearIcon size={20} weight="bold" className="-mt-0.5" />
           {!isEditing
-            ? "Editar Widgets"
+            ? 'Editar Widgets'
             : changesMade
-            ? "Salvar Alterações"
-            : "Cancelar Edição"}
+              ? 'Salvar Alterações'
+              : 'Cancelar Edição'}
         </button>
 
         <button className="w-10 h-10 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors flex items-center justify-center">
@@ -100,12 +100,12 @@ export function DragAndDrop() {
         axis="x" // changed from "x" to "xy"
         values={items}
         onReorder={(newOrder) => {
-          setItems(newOrder as string[]);
+          setItems(newOrder as string[])
           // verifica se houve mudança em relação à ordem original
           setChangesMade(
             originalOrder.length > 0 &&
-              newOrder.some((id, idx) => id !== originalOrder[idx])
-          );
+              newOrder.some((id, idx) => id !== originalOrder[idx]),
+          )
         }}
         className="w-full grid grid-cols-3 items-start gap-5 mb-10"
       >
@@ -116,10 +116,10 @@ export function DragAndDrop() {
             drag={isEditing} // permite drag apenas em edição
             dragListener={isEditing} // desativa o listener quando não edita
             className={
-              "border-2 border-dashed  border-transparent relative" +
+              'border-2 border-dashed  border-transparent relative' +
               (isEditing
-                ? " !border-zhex-base-500 rounded-lg cursor-grab active:cursor-grabbing"
-                : "")
+                ? ' !border-zhex-base-500 rounded-lg cursor-grab active:cursor-grabbing'
+                : '')
             }
             dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
           >
@@ -134,8 +134,8 @@ export function DragAndDrop() {
                 </button>
                 <button
                   onClick={() => {
-                    setTargetIdx(idx);
-                    setModalOpen(true);
+                    setTargetIdx(idx)
+                    setModalOpen(true)
                   }}
                   className="w-8 h-8 rounded-lg text-zhex-base-500 border border-zhex-base-500 flex items-center justify-center hover:bg-zhex-base-500 hover:text-white relative z-[100]"
                 >
@@ -144,7 +144,7 @@ export function DragAndDrop() {
               </div>
             )}
 
-            <div className={isEditing ? "opacity-20" : ""}>{widgetMap[id]}</div>
+            <div className={isEditing ? 'opacity-20' : ''}>{widgetMap[id]}</div>
           </Reorder.Item>
         ))}
       </Reorder.Group>
@@ -154,16 +154,16 @@ export function DragAndDrop() {
           onClose={() => setModalOpen(false)}
           onSelect={(wid) => {
             setItems((prev) => {
-              if (targetIdx === null) return prev;
-              const copy = [...prev];
-              copy[targetIdx] = wid;
-              return copy;
-            });
-            setChangesMade(true);
-            setModalOpen(false);
+              if (targetIdx === null) return prev
+              const copy = [...prev]
+              copy[targetIdx] = wid
+              return copy
+            })
+            setChangesMade(true)
+            setModalOpen(false)
           }}
         />
       )}
     </Dialog.Root>
-  );
+  )
 }

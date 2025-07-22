@@ -1,10 +1,10 @@
-import { Header } from "@/components/header";
-import { SideBar } from "@/components/sidebar";
+import { Header } from '@/components/header'
+import { SideBar } from '@/components/sidebar'
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <main className="bg-neutral-50 flex flex-1 w-full h-full items-start">
@@ -26,5 +26,5 @@ export default function RootLayout({
         {children}
       </div>
     </main>
-  );
+  )
 }

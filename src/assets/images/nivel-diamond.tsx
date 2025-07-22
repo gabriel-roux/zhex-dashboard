@@ -1,29 +1,29 @@
 interface NivelDiamondProps {
-  nivel: "silver" | "gold" | "zhelix" | "lymnia" | "valeon";
+  nivel: 'silver' | 'gold' | 'zhelix' | 'lymnia' | 'valeon'
 }
 export function NivelDiamond({ nivel }: NivelDiamondProps) {
   const nivelColors = {
     silver: {
-      fill: "#9ED5FF",
-      stroke: "#0077FF",
+      fill: '#9ED5FF',
+      stroke: '#0077FF',
     },
     gold: {
-      fill: "#FAF25C",
-      stroke: "#FFDD00",
+      fill: '#FAF25C',
+      stroke: '#FFDD00',
     },
     zhelix: {
-      fill: "#4F4F4F",
-      stroke: "#A1A1A1",
+      fill: '#4F4F4F',
+      stroke: '#A1A1A1',
     },
     lymnia: {
-      fill: "#4F4F4F",
-      stroke: "#A1A1A1",
+      fill: '#4F4F4F',
+      stroke: '#A1A1A1',
     },
     valeon: {
-      fill: "#4F4F4F",
-      stroke: "#A1A1A1",
+      fill: '#4F4F4F',
+      stroke: '#A1A1A1',
     },
-  };
+  }
 
   return (
     <svg
@@ -56,5 +56,5 @@ export function NivelDiamond({ nivel }: NivelDiamondProps) {
         </clipPath>
       </defs>
     </svg>
-  );
+  )
 }

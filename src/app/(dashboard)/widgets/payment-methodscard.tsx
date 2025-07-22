@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
 import {
   ArrowRightIcon,
   ArrowsOutSimpleIcon,
   CardholderIcon,
-} from "@phosphor-icons/react";
-import MasterCard from "@/assets/images/methods/mastercard.svg";
-import Image from "next/image";
+} from '@phosphor-icons/react'
+import MasterCard from '@/assets/images/methods/mastercard.svg'
+import Image from 'next/image'
 
 /**
  * Card: Métodos de Pagamento
@@ -17,11 +17,11 @@ import Image from "next/image";
 export function PaymentMethods() {
   const methods = [
     {
-      id: "master",
-      label: "MasterCard",
+      id: 'master',
+      label: 'MasterCard',
       pct: 47,
       amount: 5_170.83,
-      bar: "border-l-[3px] border-zhex-base-500 bg-zhex-base-600/40",
+      bar: 'border-l-[3px] border-zhex-base-500 bg-zhex-base-600/40',
       icon: (
         <Image
           src={MasterCard}
@@ -32,11 +32,11 @@ export function PaymentMethods() {
       ),
     },
     {
-      id: "paypal",
-      label: "Paypal",
+      id: 'paypal',
+      label: 'Paypal',
       pct: 47,
       amount: 1_170.83,
-      bar: "border-l-[3px] border-cyan-500 bg-cyan-600/40",
+      bar: 'border-l-[3px] border-cyan-500 bg-cyan-600/40',
       icon: (
         <Image
           src={MasterCard}
@@ -47,11 +47,11 @@ export function PaymentMethods() {
       ),
     },
     {
-      id: "apple",
-      label: "Apple Pay",
+      id: 'apple',
+      label: 'Apple Pay',
       pct: 47,
       amount: 3_170.83,
-      bar: "border-l-[3px] border-neutral-500 bg-neutral-600/40",
+      bar: 'border-l-[3px] border-neutral-500 bg-neutral-600/40',
       icon: (
         <Image
           src={MasterCard}
@@ -62,11 +62,11 @@ export function PaymentMethods() {
       ),
     },
     {
-      id: "gpay",
-      label: "Google Pay",
+      id: 'gpay',
+      label: 'Google Pay',
       pct: 47,
       amount: 2_170.83,
-      bar: "border-l-[3px] border-rose-500 bg-rose-600/40",
+      bar: 'border-l-[3px] border-rose-500 bg-rose-600/40',
       icon: (
         <Image
           src={MasterCard}
@@ -76,7 +76,7 @@ export function PaymentMethods() {
         />
       ),
     },
-  ];
+  ]
 
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-4">
@@ -119,10 +119,10 @@ export function PaymentMethods() {
 
             {/* valor */}
             <span className="text-neutral-1000 font-araboto text-xs font-medium">
-              {amount.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}{" "}
+              {amount.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}{' '}
               <span className="font-normal text-neutral-500">
                 por este método
               </span>
@@ -139,5 +139,5 @@ export function PaymentMethods() {
         </button>
       </div>
     </div>
-  );
+  )
 }

@@ -1,29 +1,22 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/button";
-import { PasswordField, TextField } from "@/components/textfield";
-import { EnvelopeIcon, LockIcon, InfoIcon } from "@phosphor-icons/react";
-import * as Dialog from "@radix-ui/react-dialog";
-import Link from "next/link";
-import { WaitlistModal } from "./waitlist-modal";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-interface LoginFormProps {}
+import { Button } from '@/components/button'
+import { PasswordField, TextField } from '@/components/textfield'
+import { EnvelopeIcon, LockIcon, InfoIcon } from '@phosphor-icons/react'
+import * as Dialog from '@radix-ui/react-dialog'
+import Link from 'next/link'
+import { WaitlistModal } from './waitlist-modal'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export function LoginForm() {
   const loginSchema = z.object({
-    email: z
-      .string()
-      .nonempty("Email obrigatório")
-      .email("Email inválido"),
-    password: z
-      .string()
-      .min(6, "Senha deve ter ao menos 6 caracteres"),
-  });
+    email: z.string().nonempty('Email obrigatório').email('Email inválido'),
+    password: z.string().min(6, 'Senha deve ter ao menos 6 caracteres'),
+  })
 
-  type LoginFormValues = z.infer<typeof loginSchema>;
+  type LoginFormValues = z.infer<typeof loginSchema>
 
   const {
     register,
@@ -31,10 +24,10 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-  });
+  })
 
   function onSubmit(data: LoginFormValues) {
-    console.log("login values →", data);
+    console.log('login values →', data)
     // TODO: mutate / action
   }
 
@@ -58,7 +51,7 @@ export function LoginForm() {
             className="h-[55px]"
             placeholder="Digite seu email"
             leftIcon={<EnvelopeIcon size={20} />}
-            {...register("email")}
+            {...register('email')}
             error={errors.email?.message}
           />
         </div>
@@ -75,7 +68,7 @@ export function LoginForm() {
             className="h-[55px]"
             placeholder="Digite sua senha"
             leftIcon={<LockIcon size={20} />}
-            {...register("password")}
+            {...register('password')}
             error={errors.password?.message}
           />
         </div>
@@ -110,8 +103,16 @@ export function LoginForm() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Button size="full" loading={isSubmitting} variant="primary" className="py-3" disabled={isSubmitting}>
-            {isSubmitting ? "Enviando..." : "Entrar Agora"}
+          <Button
+            size="full"
+            loading={isSubmitting}
+            variant="primary"
+            className="py-3"
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? 'Enviando...'
+              : 'Entrar Agora'}
           </Button>
           <Dialog.Trigger asChild>
             <Button type="button" size="full" variant="ghost" className="py-3">
@@ -131,5 +132,5 @@ export function LoginForm() {
 
       <WaitlistModal />
     </Dialog.Root>
-  );
+  )
 }

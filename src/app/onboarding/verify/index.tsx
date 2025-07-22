@@ -1,4 +1,4 @@
-import * as Slider from "@radix-ui/react-slider";
+import * as Slider from '@radix-ui/react-slider'
 import {
   MegaphoneIcon,
   ShoppingCartSimpleIcon,
@@ -8,41 +8,43 @@ import {
   TrendUpIcon,
   MonitorIcon,
   StorefrontIcon,
-} from "@phosphor-icons/react";
-import { Option } from "@/components/option";
-import { BuildingIcon, UserIcon } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion"; // suave animação no thumb
+} from '@phosphor-icons/react'
+import { Option } from '@/components/option'
+import { BuildingIcon, UserIcon } from '@phosphor-icons/react'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion' // suave animação no thumb
 
 export function InitOnboarding() {
   // slider steps
   const sizeSteps = [
-    { value: 1, label: "1‑10" },
-    { value: 2, label: "11‑50" },
-    { value: 3, label: "51‑200" },
-    { value: 4, label: "201‑500" },
-    { value: 5, label: "+500" },
-  ];
+    { value: 1, label: '1‑10' },
+    { value: 2, label: '11‑50' },
+    { value: 3, label: '51‑200' },
+    { value: 4, label: '201‑500' },
+    { value: 5, label: '+500' },
+  ]
 
-  const [sizeValue, setSizeValue] = useState<number[]>([1]);
+  const [sizeValue, setSizeValue] = useState<number[]>([1])
 
   // PF / PJ
-  const [personType, setPersonType] = useState<"pf" | "pj">("pf");
+  const [personType, setPersonType] = useState<'pf' | 'pj'>('pf')
 
   // company type selection
   const companyTypes = [
-    "Tráfego Direto",
-    "Produtor de Infoprodutos",
-    "Afiliado de Marketing",
-    "E‑commerce de Nicho",
-    "SaaS / Ferramenta B2B",
-    "Marketplace",
-    "Influencer / Creator",
-    "Agência Global",
-  ];
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+    'Tráfego Direto',
+    'Produtor de Infoprodutos',
+    'Afiliado de Marketing',
+    'E‑commerce de Nicho',
+    'SaaS / Ferramenta B2B',
+    'Marketplace',
+    'Influencer / Creator',
+    'Agência Global',
+  ]
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null)
 
-  const displaySize = sizeSteps.find((s) => s.value === Math.round(sizeValue[0]))!;
+  const displaySize = sizeSteps.find(
+    (s) => s.value === Math.round(sizeValue[0]),
+  )!
 
   return (
     <>
@@ -60,14 +62,14 @@ export function InitOnboarding() {
         <Option
           label="Pessoa Física ( PF )"
           icon={UserIcon}
-          selected={personType === "pf"}
-          onSelect={() => setPersonType("pf")}
+          selected={personType === 'pf'}
+          onSelect={() => setPersonType('pf')}
         />
         <Option
           label="Pessoa Jurídica ( PJ )"
           icon={BuildingIcon}
-          selected={personType === "pj"}
-          onSelect={() => setPersonType("pj")}
+          selected={personType === 'pj'}
+          onSelect={() => setPersonType('pj')}
         />
       </div>
 
@@ -87,21 +89,21 @@ export function InitOnboarding() {
               key={type}
               label={type}
               icon={
-                type === "Tráfego Direto"
+                type === 'Tráfego Direto'
                   ? MegaphoneIcon
-                  : type === "Produtor de Infoprodutos"
-                  ? MonitorIcon
-                  : type === "Afiliado de Marketing"
-                  ? UsersThreeIcon
-                  : type === "E‑commerce de Nicho"
-                  ? ShoppingCartSimpleIcon
-                  : type === "SaaS / Ferramenta B2B"
-                  ? TrendUpIcon
-                  : type === "Marketplace"
-                  ? StorefrontIcon
-                  : type === "Influencer / Creator"
-                  ? VideoCameraIcon
-                  : GlobeIcon
+                  : type === 'Produtor de Infoprodutos'
+                    ? MonitorIcon
+                    : type === 'Afiliado de Marketing'
+                      ? UsersThreeIcon
+                      : type === 'E‑commerce de Nicho'
+                        ? ShoppingCartSimpleIcon
+                        : type === 'SaaS / Ferramenta B2B'
+                          ? TrendUpIcon
+                          : type === 'Marketplace'
+                            ? StorefrontIcon
+                            : type === 'Influencer / Creator'
+                              ? VideoCameraIcon
+                              : GlobeIcon
               }
               selected={selectedCompany === type}
               onSelect={() => setSelectedCompany(type)}
@@ -119,7 +121,7 @@ export function InitOnboarding() {
         <p className="font-araboto text-lg text-neutral-1000">
           <span className="text-zhex-base-500 font-medium">
             {displaySize.label}
-          </span>{" "}
+          </span>{' '}
           Pessoas
         </p>
 
@@ -138,7 +140,7 @@ export function InitOnboarding() {
           <Slider.Thumb asChild>
             <motion.div
               layout
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               className="
                 h-6 w-6 rounded-full bg-white border-2 border-zhex-base-500
                 focus:outline-none focus:ring-2 focus:ring-zhex-base-300
@@ -148,5 +150,5 @@ export function InitOnboarding() {
         </Slider.Root>
       </div>
     </>
-  );
+  )
 }

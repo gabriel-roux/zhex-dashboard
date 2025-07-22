@@ -1,65 +1,65 @@
-"use client";
+'use client'
 
-import { Container } from "@/components/container";
-import { useState } from "react";
+import { Container } from '@/components/container'
+import { useState } from 'react'
 
-import { Button } from "@/components/button";
-import { ProgressBar } from "./progress-bar";
-import { InitOnboarding } from "./verify";
-import { BusinessForm } from "./verify/business-form";
-import { RepresentativesForm } from "./verify/representatives-form";
-import BankForm from "./verify/bank-form";
-import { OperationRisk } from "./verify/operation-risk-form";
-import { SignatureForm } from "./verify/signature-form";
+import { Button } from '@/components/button'
+import { ProgressBar } from './progress-bar'
+import { InitOnboarding } from './verify'
+import { BusinessForm } from './verify/business-form'
+import { RepresentativesForm } from './verify/representatives-form'
+import BankForm from './verify/bank-form'
+import { OperationRisk } from './verify/operation-risk-form'
+import { SignatureForm } from './verify/signature-form'
 
 export default function OnboardingPage() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0)
 
   const steps = [
     {
-      label: "Perfil",
+      label: 'Perfil',
       completed: true,
     },
     {
-      label: "Detalhes da Empresa",
+      label: 'Detalhes da Empresa',
       completed: false,
     },
     {
-      label: "Detalhes dos Representantes",
+      label: 'Detalhes dos Representantes',
       completed: false,
     },
     {
-      label: "Conta Bancária",
+      label: 'Conta Bancária',
       completed: false,
     },
     {
-      label: "Risco de Operação",
+      label: 'Risco de Operação',
       completed: false,
     },
     {
-      label: "Assinatura",
+      label: 'Assinatura',
       completed: false,
     },
-  ];
+  ]
 
   const step = () => {
     switch (currentStep) {
       case 0:
-        return <InitOnboarding />;
+        return <InitOnboarding />
       case 1:
-        return <BusinessForm />;
+        return <BusinessForm />
       case 2:
-        return <RepresentativesForm />;
+        return <RepresentativesForm />
       case 3:
-        return <BankForm />;
+        return <BankForm />
       case 4:
-        return <OperationRisk />;
+        return <OperationRisk />
       case 5:
-        return <SignatureForm />;
+        return <SignatureForm />
       default:
-        return <InitOnboarding />;
+        return <InitOnboarding />
     }
-  };
+  }
 
   return (
     <Container>
@@ -90,5 +90,5 @@ export default function OnboardingPage() {
         </div>
       </div>
     </Container>
-  );
+  )
 }

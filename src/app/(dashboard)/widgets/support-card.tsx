@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/button";
+import { Button } from '@/components/button'
 import {
   AddressBookIcon,
   ArrowsOutSimpleIcon,
   PhoneIcon,
   EnvelopeIcon,
-} from "@phosphor-icons/react";
+} from '@phosphor-icons/react'
 
 /**
  * Card: Seu gerente de contas
@@ -16,12 +16,12 @@ import {
  */
 export function SupportWidget() {
   const manager = {
-    name: "João Medes",
-    role: "Seu suporte 24/7",
-    avatar: "https://avatars.githubusercontent.com/u/9919?s=200&v=4", // placeholder
+    name: 'João Medes',
+    role: 'Seu suporte 24/7',
+    avatar: 'https://avatars.githubusercontent.com/u/9919?s=200&v=4', // placeholder
     blurb:
-      "Quem quer vender sem limites, precisa de uma equipe que não coloca limite no atendimento. Estamos prontos para deixar tudo nos conformes e garantir que sua operação conosco funcione como um relógio.",
-  };
+      'Quem quer vender sem limites, precisa de uma equipe que não coloca limite no atendimento. Estamos prontos para deixar tudo nos conformes e garantir que sua operação conosco funcione como um relógio.',
+  }
 
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-4">
@@ -64,5 +64,5 @@ export function SupportWidget() {
         <Button variant="secondary">Marcar uma Call</Button>
       </div>
     </div>
-  );
+  )
 }

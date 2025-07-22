@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
 import {
   ArrowsOutSimpleIcon,
   HeartbeatIcon,
   ThumbsUpIcon,
-} from "@phosphor-icons/react";
+} from '@phosphor-icons/react'
 
 /**
  * Card: Controle de Chargeback
@@ -14,22 +14,23 @@ import {
  */
 export function ChargebackControlWidget() {
   // Mock – valores estáticos; troque por dados vindos da API
-  const usedPercent = 0.21; // 0,21 %
-  const limitPercent = 2; // 2,00 %
+  const usedPercent = 0.21 // 0,21 %
+  const limitPercent = 2 // 2,00 %
 
   /* ---- Helpers gráfica (círculo de progresso) -------------------- */
-  const radius = 28;
-  const stroke = 2;
-  const circumference = 2 * Math.PI * radius;
+  const radius = 28
+  const stroke = 2
+  const circumference = 2 * Math.PI * radius
 
   // dotted config ---------------------------------------------------
-  const dotCount = 30; // quantidade de “pontinhos” ao redor
-  const gap = circumference / dotCount; // distância entre os centros
-  const dotPattern = `0 ${gap}`; // comprimento zero + gap (pontinho arredondado)
+  const dotCount = 30 // quantidade de “pontinhos” ao redor
+  const gap = circumference / dotCount // distância entre os centros
+  const dotPattern = `0 ${gap}` // comprimento zero + gap (pontinho arredondado)
 
-  const progress = (usedPercent / limitPercent) * 100; // 10,5 %
-  const dashGapFix = 0.5;
-  const dashOffset = circumference - (progress / 100) * circumference + dashGapFix;
+  const progress = (usedPercent / limitPercent) * 100 // 10,5 %
+  const dashGapFix = 0.5
+  const dashOffset =
+    circumference - (progress / 100) * circumference + dashGapFix
 
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-6">
@@ -86,7 +87,7 @@ export function ChargebackControlWidget() {
             </svg>
 
             <span className="text-neutral-1000 font-araboto text-[28px] font-semibold leading-none">
-              {usedPercent.toLocaleString("pt-BR", {
+              {usedPercent.toLocaleString('pt-BR', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -99,7 +100,7 @@ export function ChargebackControlWidget() {
         <div className="flex flex-col items-end gap-6">
           <span className="text-neutral-500 text-sm">Limite mensal</span>
           <span className="text-neutral-400 font-araboto text-[28px] font-semibold leading-none">
-            {limitPercent.toFixed(2).replace(".", ",")}%
+            {limitPercent.toFixed(2).replace('.', ',')}%
           </span>
         </div>
       </section>
@@ -118,5 +119,5 @@ export function ChargebackControlWidget() {
         condições ainda melhores.
       </p>
     </div>
-  );
+  )
 }

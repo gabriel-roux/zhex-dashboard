@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { SelectField, TextField } from "@/components/textfield";
-import { banks } from "@/assets/lists/banks";
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { SelectField, TextField } from '@/components/textfield'
+import { banks } from '@/assets/lists/banks'
 
 /* -------------------------------------------------------------------------- */
 /* Schema                                                                     */
 /* -------------------------------------------------------------------------- */
 const bankSchema = z
   .object({
-    bank: z.string().min(1, "Selecione o banco."),
-    agencyNumber: z.string().min(1, "Agência obrigatória."),
-    accountNumber: z.string().min(1, "Conta obrigatória."),
-    confirmAccountNumber: z.string().min(1, "Confirme a conta."),
+    bank: z.string().min(1, 'Selecione o banco.'),
+    agencyNumber: z.string().min(1, 'Agência obrigatória.'),
+    accountNumber: z.string().min(1, 'Conta obrigatória.'),
+    confirmAccountNumber: z.string().min(1, 'Confirme a conta.'),
   })
   .refine((data) => data.accountNumber === data.confirmAccountNumber, {
-    message: "Contas não conferem.",
-    path: ["confirmAccountNumber"],
-  });
+    message: 'Contas não conferem.',
+    path: ['confirmAccountNumber'],
+  })
 
-type FormValues = z.infer<typeof bankSchema>;
+type FormValues = z.infer<typeof bankSchema>
 
 /* -------------------------------------------------------------------------- */
 /* Component                                                                  */
@@ -34,9 +34,9 @@ export default function BankForm() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(bankSchema),
-  });
+  })
 
-  const onSubmit = (data: FormValues) => console.log(data);
+  const onSubmit = (data: FormValues) => console.log(data)
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -78,7 +78,7 @@ export default function BankForm() {
             </label>
             <TextField
               placeholder="0001"
-              {...register("agencyNumber")}
+              {...register('agencyNumber')}
               error={errors.agencyNumber?.message}
             />
           </div>
@@ -88,7 +88,7 @@ export default function BankForm() {
             </label>
             <TextField
               placeholder="123456-7"
-              {...register("accountNumber")}
+              {...register('accountNumber')}
               error={errors.accountNumber?.message}
             />
           </div>
@@ -98,12 +98,12 @@ export default function BankForm() {
             </label>
             <TextField
               placeholder="123456-7"
-              {...register("confirmAccountNumber")}
+              {...register('confirmAccountNumber')}
               error={errors.confirmAccountNumber?.message}
             />
           </div>
         </div>
       </div>
     </form>
-  );
+  )
 }

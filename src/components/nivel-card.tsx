@@ -1,81 +1,81 @@
-"use client";
+'use client'
 
-import { DiamondIcon } from "@phosphor-icons/react";
-import { NivelBadge } from "@/assets/images/nivel-badge-bg";
-import NivelGrid from "@/assets/images/nivel-grid.png";
-import NivelRadial from "@/assets/images/nivel-radial-header.png";
-import Image from "next/image";
-import { NivelDiamond } from "@/assets/images/nivel-diamond";
+import { DiamondIcon } from '@phosphor-icons/react'
+import { NivelBadge } from '@/assets/images/nivel-badge-bg'
+import NivelGrid from '@/assets/images/nivel-grid.png'
+import NivelRadial from '@/assets/images/nivel-radial-header.png'
+import Image from 'next/image'
+import { NivelDiamond } from '@/assets/images/nivel-diamond'
 
 /**
  * Informações de cada nível que serão renderizadas pelo componente.
  */
 export type NivelInfo = {
-  label: string; // ex: “Silver”
-  maxLabel: string; // ex: “R$ 50 k”
+  label: string // ex: “Silver”
+  maxLabel: string // ex: “R$ 50 k”
   /**
    * Classes tailwind para o background principal.
    * Use “bg-gradient-to-br …” para gradientes ou bg-zinc-900 etc.
    */
-  bgClass: string;
+  bgClass: string
   /**
    * Classe tailwind para o background do diamante / marcadores.
    * Use “bg-[#3B7BFF]/20” ou similar.
    */
-  accentBgClass?: string; // opcional, usado para Silver
+  accentBgClass?: string // opcional, usado para Silver
   /**
    * Cor de textos principais (normalmente branco ou zinc‑1000)
    */
-  textColor?: string;
-};
+  textColor?: string
+}
 
 /**
  * Variantes possíveis do card de nível.
  */
-export type NivelVariant = "silver" | "gold" | "zhelix" | "lymnia" | "valeon";
+export type NivelVariant = 'silver' | 'gold' | 'zhelix' | 'lymnia' | 'valeon'
 
 /**
  * Mapeamento das variantes para as configurações visuais.
  */
 const NIVEL_VARIANTS: Record<NivelVariant, NivelInfo> = {
   silver: {
-    label: "Silver",
-    maxLabel: "R$ 50 k",
-    bgClass: "bg-gradient-to-br from-[#012C72] to-[#0055E1] text-white",
-    accentBgClass: "bg-[#3B7BFF]",
+    label: 'Silver',
+    maxLabel: 'R$ 50 k',
+    bgClass: 'bg-gradient-to-br from-[#012C72] to-[#0055E1] text-white',
+    accentBgClass: 'bg-[#3B7BFF]',
   },
   gold: {
-    label: "Gold",
-    maxLabel: "R$ 100 k",
-    bgClass: "bg-gradient-to-br from-[#8e6b13] to-[#d49702] text-white",
-    accentBgClass: "bg-yellow-secondary-500",
-    textColor: "text-white",
+    label: 'Gold',
+    maxLabel: 'R$ 100 k',
+    bgClass: 'bg-gradient-to-br from-[#8e6b13] to-[#d49702] text-white',
+    accentBgClass: 'bg-yellow-secondary-500',
+    textColor: 'text-white',
   },
   zhelix: {
-    label: "ZHELIX",
-    maxLabel: "R$ 1 M",
-    bgClass: "bg-gradient-to-br from-[#2A2A2A] to-[#131416]",
-    accentBgClass: "bg-zinc-400",
-    textColor: "text-white",
+    label: 'ZHELIX',
+    maxLabel: 'R$ 1 M',
+    bgClass: 'bg-gradient-to-br from-[#2A2A2A] to-[#131416]',
+    accentBgClass: 'bg-zinc-400',
+    textColor: 'text-white',
   },
   lymnia: {
-    label: "LYMNIA",
-    maxLabel: "R$ 10 M",
-    bgClass: "bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]",
-    accentBgClass: "bg-zinc-400",
-    textColor: "text-white",
+    label: 'LYMNIA',
+    maxLabel: 'R$ 10 M',
+    bgClass: 'bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D]',
+    accentBgClass: 'bg-zinc-400',
+    textColor: 'text-white',
   },
   valeon: {
-    label: "VALEON",
-    maxLabel: "R$ 30 M",
-    bgClass: "bg-gradient-to-br from-[#000] to-[#050505]",
-    accentBgClass: "bg-zinc-400",
-    textColor: "text-white",
+    label: 'VALEON',
+    maxLabel: 'R$ 30 M',
+    bgClass: 'bg-gradient-to-br from-[#000] to-[#050505]',
+    accentBgClass: 'bg-zinc-400',
+    textColor: 'text-white',
   },
-};
+}
 
 interface NivelCardProps {
-  variant: NivelVariant;
+  variant: NivelVariant
 }
 
 export function NivelCard({ variant }: NivelCardProps) {
@@ -83,8 +83,8 @@ export function NivelCard({ variant }: NivelCardProps) {
     maxLabel,
     bgClass,
     accentBgClass,
-    textColor = "text-white",
-  } = NIVEL_VARIANTS[variant];
+    textColor = 'text-white',
+  } = NIVEL_VARIANTS[variant]
 
   return (
     <article
@@ -109,7 +109,7 @@ export function NivelCard({ variant }: NivelCardProps) {
           Seu nível
         </h3>
 
-        {variant === "valeon" && (
+        {variant === 'valeon' && (
           <div className="flex items-center justify-center w-7 h-7 rounded-full border-[3px] border-[#242424]">
             <NivelDiamond nivel="valeon" />
           </div>
@@ -117,7 +117,7 @@ export function NivelCard({ variant }: NivelCardProps) {
       </header>
 
       {/* barra de progresso simplificada */}
-      {variant !== "valeon" && (
+      {variant !== 'valeon' && (
         <div className="relative flex items-center">
           <div className="h-2 flex-1 rounded-full bg-neutral-100/10" />
           <div
@@ -125,7 +125,7 @@ export function NivelCard({ variant }: NivelCardProps) {
           />
           <div
             className="absolute -translate-x-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border-2 border-white/10 shadow-md"
-            style={{ left: "20%" /* posição ilustrativa */ }}
+            style={{ left: '20%' /* posição ilustrativa */ }}
           >
             <NivelDiamond nivel={variant} />
           </div>
@@ -152,5 +152,5 @@ export function NivelCard({ variant }: NivelCardProps) {
         </p>
       </div>
     </article>
-  );
+  )
 }

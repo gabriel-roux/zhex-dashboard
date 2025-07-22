@@ -1,8 +1,8 @@
-import { Logo } from "@/assets/images/logo";
-import LoginImg from "@/assets/images/login-sidebar-widgets.png";
-import Grid from "@/assets/images/login-grid.png";
-import Image from "next/image";
-import { LoginForm } from "./login-form";
+import { Logo } from '@/assets/images/logo'
+import LoginImg from '@/assets/images/login-sidebar-widgets.png'
+import Grid from '@/assets/images/login-grid.png'
+import Image from 'next/image'
+import { LoginForm } from './login-form'
 
 export default function LoginPage() {
   return (
@@ -24,13 +24,12 @@ export default function LoginPage() {
         </div>
         <div className="flex items-center md:min-w-[778px] md:h-[705px] 3xl:min-w-[898px] 3xl:h-[800px] relative">
           {/* Highlight copy over the illustration */}
-          <div
-            className="absolute top-3 left-6 flex flex-col gap-2
-                       p-6"
-          >
+          <div className="absolute top-3 left-6 flex flex-col gap-2 p-6">
             <div className="flex items-center gap-2">
-              <div className="w-[3px] h-5 bg-blue-500 rounded-full"></div>
-              <h2 className="text-xl font-araboto font-semibold text-neutral-950 leading-tight">
+              <div className="w-[3px] h-5 bg-blue-500 rounded-full" />
+              <h2
+                className="text-xl font-araboto font-semibold text-neutral-950 leading-tight"
+              >
                 Precisão suíça nos seus pagamentos
               </h2>
             </div>
@@ -53,5 +52,5 @@ export default function LoginPage() {
         alt="Background Grid"
       />
     </main>
-  );
+  )
 }

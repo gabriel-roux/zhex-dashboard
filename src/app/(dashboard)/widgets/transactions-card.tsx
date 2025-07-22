@@ -1,10 +1,9 @@
-"use client";
+'use client'
 
 import {
-  ArrowRightIcon,
   ArrowsOutSimpleIcon,
   ReceiptIcon,
-} from "@phosphor-icons/react";
+} from '@phosphor-icons/react'
 
 /**
  * Card: Transações recentes
@@ -15,11 +14,11 @@ import {
 export function TransactionsWidget() {
   const rows = Array.from({ length: 4 }).map((_, i) => ({
     id: i,
-    client: "Julia Correa",
-    email: "julia.correa@gmail.com",
-    product: "Protocolo Pele Perfeita",
+    client: 'Julia Correa',
+    email: 'julia.correa@gmail.com',
+    product: 'Protocolo Pele Perfeita',
     amount: 47.9,
-  }));
+  }))
 
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col">
@@ -63,14 +62,14 @@ export function TransactionsWidget() {
 
             {/* Coluna 3: valor */}
             <p className="text-neutral-1000 font-semibold text-right">
-              {amount.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
+              {amount.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
               })}
             </p>
           </li>
         ))}
       </ul>
     </div>
-  );
+  )
 }

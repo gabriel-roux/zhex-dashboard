@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { ArrowsOutSimpleIcon, ChartLineUpIcon } from "@phosphor-icons/react";
+import { ArrowsOutSimpleIcon, ChartLineUpIcon } from '@phosphor-icons/react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,25 +9,24 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Dot,
-} from "recharts";
+} from 'recharts'
 
 /* ------------------------------------------------------------------ */
 /* MOCK DATA (substitua pelos dados da API)                            */
 /* ------------------------------------------------------------------ */
-const days = [1, 2, 3, 4, 8, 9, 10, 12, 13, 17, 18];
+const days = [1, 2, 3, 4, 8, 9, 10, 12, 13, 17, 18]
 const currentMonth = [
   500, 750, 650, 900, 1_200, 830, 1_050, 1_260, 1_120, 980, 1_400,
-];
+]
 const lastMonth = [
   420, 580, 700, 300, 1_450, 950, 760, 1_320, 1_000, 870, 1_100,
-];
+]
 
 const chartData = days.map((d, i) => ({
   day: d,
   current: currentMonth[i],
   previous: lastMonth[i],
-}));
+}))
 
 /* ------------------------------------------------------------------ */
 /* Tooltip custom                                                    */
@@ -37,14 +36,14 @@ const CustomTooltip = ({
   payload,
   label,
 }: {
-  active?: boolean;
-  payload?: { value: number; dataKey: string }[];
-  label?: number;
+  active?: boolean
+  payload?: { value: number; dataKey: string }[]
+  label?: number
 }) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) return null
 
   const fmt = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white/90 backdrop-blur-md px-3 py-2 shadow-lg text-xs space-y-1">
@@ -53,19 +52,19 @@ const CustomTooltip = ({
         <span className="inline-block w-2 h-2 rounded-full bg-[#2563eb]" />
         <span className="text-neutral-700">Este mês:</span>
         <span className="font-medium text-neutral-950">
-          {fmt(payload.find((p) => p.dataKey === "current")?.value ?? 0)}
+          {fmt(payload.find((p) => p.dataKey === 'current')?.value ?? 0)}
         </span>
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block w-2 h-2 rounded-full bg-[#9db5ff]" />
         <span className="text-neutral-700">Mês passado:</span>
         <span className="font-medium text-neutral-950">
-          {fmt(payload.find((p) => p.dataKey === "previous")?.value ?? 0)}
+          {fmt(payload.find((p) => p.dataKey === 'previous')?.value ?? 0)}
         </span>
       </div>
     </div>
-  );
-};
+  )
+}
 
 /* ------------------------------------------------------------------ */
 /* COMPONENT                                                           */
@@ -90,24 +89,28 @@ export function NetVolumeWidget() {
         <span className="text-xl font-semibold">R$9.400,50</span>
         <span
           className={`text-sm font-medium ${
-            true ? "text-green-secondary-600" : "text-red-secondary-600"
+            true
+? 'text-green-secondary-600'
+: 'text-red-secondary-600'
           } flex items-center gap-1`}
         >
-          {true ? "↑" : "↓"}
+          {true
+            ? '↑'
+            : '↓'}
           6% <span className="text-neutral-400">vs mês passado</span>
         </span>
       </div>
       {/* Legenda custom ------------------------------------------- */}
       <div className="flex items-center gap-6 text-sm text-neutral-500">
         <p className="text-sm font-araboto flex-shrink-0">
-        Performance em vendas
+          Performance em vendas
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#2563eb]" />{" "}
+          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#2563eb]" />{' '}
           <span className="text-neutral-1000">Este mês</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#9db5ff]" />{" "}
+          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#9db5ff]" />{' '}
           <span>Mês passado</span>
         </div>
       </div>
@@ -129,7 +132,7 @@ export function NetVolumeWidget() {
             {/* Eixo X -------------------------------------------- */}
             <XAxis
               dataKey="day"
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
               axisLine={false}
               tickLine={false}
             />
@@ -139,7 +142,7 @@ export function NetVolumeWidget() {
               domain={[0, 1800]}
               ticks={[1000]}
               tickFormatter={(v) => `${v / 1000}K`}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
               axisLine={false}
               tickLine={false}
             />
@@ -162,7 +165,7 @@ export function NetVolumeWidget() {
               dataKey="previous"
               stroke="url(#linePreviousNet)"
               strokeWidth={2}
-              dot={{ r: 4, strokeWidth: 0, fill: "#9db5ff" }}
+              dot={{ r: 4, strokeWidth: 0, fill: '#9db5ff' }}
               activeDot={{ r: 6 }}
             />
 
@@ -172,18 +175,18 @@ export function NetVolumeWidget() {
               dataKey="current"
               stroke="url(#lineCurrentNet)"
               strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 0, fill: "#2563eb" }}
+              dot={{ r: 4, strokeWidth: 0, fill: '#2563eb' }}
               activeDot={{ r: 6 }}
             />
 
             {/* Tooltip ------------------------------------------ */}
             <Tooltip
-              cursor={{ stroke: "transparent" }}
+              cursor={{ stroke: 'transparent' }}
               content={<CustomTooltip />}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
     </div>
-  );
+  )
 }

@@ -1,9 +1,6 @@
-"use client";
+'use client'
 
-import {
-  ArrowsOutSimpleIcon,
-  ChartPieSliceIcon,
-} from "@phosphor-icons/react";
+import { ArrowsOutSimpleIcon, ChartPieSliceIcon } from '@phosphor-icons/react'
 
 /**
  * Card: Status de pagamentos
@@ -14,36 +11,36 @@ import {
 export function PaymentStatusCard() {
   const data = [
     {
-      label: "Aprovadas",
+      label: 'Aprovadas',
       value: 18_941.3,
       pct: 60,
-      color: "bg-[#0CAF5D] text-green-secondary-500",
+      color: 'bg-[#0CAF5D] text-green-secondary-500',
     },
     {
-      label: "Pendentes",
+      label: 'Pendentes',
       value: 8_941.3,
       pct: 20,
-      color: "bg-yellow-secondary-400 text-yellow-secondary-400",
+      color: 'bg-yellow-secondary-400 text-yellow-secondary-400',
     },
     {
-      label: "Recusadas",
+      label: 'Recusadas',
       value: 6_941.3,
       pct: 10,
-      color: "bg-red-secondary-400 text-red-secondary-400",
+      color: 'bg-red-secondary-400 text-red-secondary-400',
     },
     {
-      label: "Reembolsadas",
+      label: 'Reembolsadas',
       value: 3_941.3,
       pct: 5,
-      color: "bg-zinc-400 text-zinc-400",
+      color: 'bg-zinc-400 text-zinc-400',
     },
     {
-      label: "Estornadas",
+      label: 'Estornadas',
       value: 3_941.3,
       pct: 5,
-      color: "bg-blue-600 text-blue-600",
+      color: 'bg-blue-600 text-blue-600',
     },
-  ];
+  ]
 
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-6">
@@ -64,7 +61,7 @@ export function PaymentStatusCard() {
         {data.map(({ pct, color }, idx) => (
           <div
             key={idx}
-            className={`${color.split(" ")[0]} mr-1.5 rounded-sm`}
+            className={`${color.split(' ')[0]} mr-1.5 rounded-sm`}
             style={{ width: `${pct}%` }}
           />
         ))}
@@ -75,22 +72,20 @@ export function PaymentStatusCard() {
         {data.map(({ label, value, pct, color }) => (
           <li key={label} className="flex items-center justify-between py-3">
             <div className="flex items-center gap-3">
-              <span
-                className={`w-3 h-[4px] rounded ${color.split(" ")[0]}`}
-              />
+              <span className={`w-3 h-[4px] rounded ${color.split(' ')[0]}`} />
               <span className="text-neutral-800">{label}</span>
             </div>
 
             <span className="text-neutral-1000 font-semibold font-araboto">
-              {value.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}{" "}
+              {value.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}{' '}
               <span className="text-neutral-500 font-normal">({pct}%)</span>
             </span>
           </li>
         ))}
       </ul>
     </div>
-  );
+  )
 }

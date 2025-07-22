@@ -18,7 +18,7 @@ const HALF_CIRCLE = CIRCLE_DIAMETER / 2
 
 export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
   const total = steps.length
-  const stepPercent = total > 1 ? 100 / (total - 1) : 0         // distância centro-a-centro em %
+  const stepPercent = total > 1 ? 100 / (total - 1) : 0 // distância centro-a-centro em %
   // const filledWidth = currentStep * stepPercent                 // barra azul até o centro do passo atual
   const ratio = total > 1 ? currentStep / (total - 1) : 0
 
@@ -55,8 +55,8 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                   completed
                     ? 'bg-zhex-base-500 border-zhex-base-500 text-white'
                     : active
-                    ? 'border-zhex-base-500 text-zhex-base-500 bg-white'
-                    : 'border-neutral-200 text-neutral-1000 bg-white'
+                      ? 'border-zhex-base-500 text-zhex-base-500 bg-white'
+                      : 'border-neutral-200 text-neutral-1000 bg-white',
                 )}
               >
                 {completed ? <CheckIcon size={14} /> : idx + 1}
@@ -69,8 +69,8 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                   completed
                     ? 'text-zhex-base-500 font-medium'
                     : active
-                    ? 'text-neutral-1000 font-medium'
-                    : 'text-neutral-300'
+                      ? 'text-neutral-1000 font-medium'
+                      : 'text-neutral-300',
                 )}
               >
                 {step.label}

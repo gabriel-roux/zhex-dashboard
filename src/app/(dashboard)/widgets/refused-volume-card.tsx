@@ -1,6 +1,7 @@
-"use client";
+/* eslint-disable no-constant-condition */
+'use client'
 
-import { ArrowsOutSimpleIcon, SmileyXEyesIcon } from "@phosphor-icons/react";
+import { ArrowsOutSimpleIcon, SmileyXEyesIcon } from '@phosphor-icons/react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -9,25 +10,24 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Dot,
-} from "recharts";
+} from 'recharts'
 
 /* ------------------------------------------------------------------ */
 /* MOCK DATA (substitua pelos dados da API)                            */
 /* ------------------------------------------------------------------ */
-const days = [1, 2, 3, 4, 8, 9, 10, 12, 13, 17, 18];
+const days = [1, 2, 3, 4, 8, 9, 10, 12, 13, 17, 18]
 const currentMonth = [
   500, 750, 650, 900, 1_200, 830, 1_050, 1_260, 1_120, 980, 1_400,
-];
+]
 const lastMonth = [
   420, 580, 700, 300, 1_450, 950, 760, 1_320, 1_000, 870, 1_100,
-];
+]
 
 const chartData = days.map((d, i) => ({
   day: d,
   current: currentMonth[i],
   previous: lastMonth[i],
-}));
+}))
 
 /* ------------------------------------------------------------------ */
 /* Tooltip custom                                                    */
@@ -37,14 +37,14 @@ const CustomTooltip = ({
   payload,
   label,
 }: {
-  active?: boolean;
-  payload?: { value: number; dataKey: string }[];
-  label?: number;
+  active?: boolean
+  payload?: { value: number; dataKey: string }[]
+  label?: number
 }) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) return null
 
   const fmt = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white/90 backdrop-blur-md px-3 py-2 shadow-lg text-xs space-y-1">
@@ -53,19 +53,19 @@ const CustomTooltip = ({
         <span className="inline-block w-2 h-2 rounded-full bg-[#FF8F90]" />
         <span className="text-neutral-700">Este mês:</span>
         <span className="font-medium text-neutral-950">
-          {fmt(payload.find((p) => p.dataKey === "current")?.value ?? 0)}
+          {fmt(payload.find((p) => p.dataKey === 'current')?.value ?? 0)}
         </span>
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-block w-2 h-2 rounded-full bg-[#D84545]" />
         <span className="text-neutral-700">Mês passado:</span>
         <span className="font-medium text-neutral-950">
-          {fmt(payload.find((p) => p.dataKey === "previous")?.value ?? 0)}
+          {fmt(payload.find((p) => p.dataKey === 'previous')?.value ?? 0)}
         </span>
       </div>
     </div>
-  );
-};
+  )
+}
 
 /* ------------------------------------------------------------------ */
 /* COMPONENT                                                           */
@@ -90,24 +90,26 @@ export function RefusedVolumeWidget() {
         <span className="text-xl font-semibold">R$3.400,50</span>
         <span
           className={`text-sm font-medium ${
-            true ? "text-green-secondary-600" : "text-red-secondary-600"
+            true
+? 'text-green-secondary-600'
+: 'text-red-secondary-600'
           } flex items-center gap-1`}
         >
-          {true ? "↑" : "↓"}
+          {true
+            ? '↑'
+            : '↓'}
           6% <span className="text-neutral-400">vs mês passado</span>
         </span>
       </div>
       {/* Legenda custom ------------------------------------------- */}
       <div className="flex items-center gap-6 text-sm text-neutral-500">
-        <p className="text-sm font-araboto flex-shrink-0">
-        Vendas recusadas
-        </p>
+        <p className="text-sm font-araboto flex-shrink-0">Vendas recusadas</p>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#FF8F90]" />{" "}
+          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#FF8F90]" />{' '}
           <span className="text-neutral-1000">Este mês</span>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#D84545]" />{" "}
+          <div className="w-3 h-3 rounded-full bg-white border-[3.5px] border-[#D84545]" />{' '}
           <span>Mês passado</span>
         </div>
       </div>
@@ -129,7 +131,7 @@ export function RefusedVolumeWidget() {
             {/* Eixo X -------------------------------------------- */}
             <XAxis
               dataKey="day"
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
               axisLine={false}
               tickLine={false}
             />
@@ -139,7 +141,7 @@ export function RefusedVolumeWidget() {
               domain={[0, 1800]}
               ticks={[1000]}
               tickFormatter={(v) => `${v / 1000}K`}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
+              tick={{ fontSize: 10, fill: '#9ca3af' }}
               axisLine={false}
               tickLine={false}
             />
@@ -162,7 +164,7 @@ export function RefusedVolumeWidget() {
               dataKey="previous"
               stroke="url(#linePrevious)"
               strokeWidth={2}
-              dot={{ r: 4, strokeWidth: 0, fill: "#FF8F90" }}
+              dot={{ r: 4, strokeWidth: 0, fill: '#FF8F90' }}
               activeDot={{ r: 6 }}
             />
 
@@ -172,18 +174,18 @@ export function RefusedVolumeWidget() {
               dataKey="current"
               stroke="url(#lineCurrent)"
               strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 0, fill: "#D84545" }}
+              dot={{ r: 4, strokeWidth: 0, fill: '#D84545' }}
               activeDot={{ r: 6 }}
             />
 
             {/* Tooltip ------------------------------------------ */}
             <Tooltip
-              cursor={{ stroke: "transparent" }}
+              cursor={{ stroke: 'transparent' }}
               content={<CustomTooltip />}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
     </div>
-  );
+  )
 }

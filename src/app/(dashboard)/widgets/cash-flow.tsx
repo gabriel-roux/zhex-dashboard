@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import * as Collapsible from "@radix-ui/react-collapsible";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import * as Collapsible from '@radix-ui/react-collapsible'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import {
   BankIcon,
   CaretCircleDownIcon,
   CaretCircleUpIcon,
-} from "@phosphor-icons/react";
+} from '@phosphor-icons/react'
 import {
   Line,
   Area,
@@ -19,7 +19,7 @@ import {
   Tooltip,
   XAxis,
   Bar,
-} from "recharts";
+} from 'recharts'
 
 function TinyChart() {
   const data = [
@@ -29,7 +29,7 @@ function TinyChart() {
     { v: 48 },
     { v: 42 },
     { v: 52 },
-  ];
+  ]
 
   return (
     <ResponsiveContainer width={80} height={28}>
@@ -42,7 +42,7 @@ function TinyChart() {
         </defs>
 
         {/* baseline Y to allow area fill */}
-        <YAxis hide domain={[0, "dataMax + 10"]} />
+        <YAxis hide domain={[0, 'dataMax + 10']} />
 
         {/* optional thin grid */}
         <CartesianGrid
@@ -64,24 +64,24 @@ function TinyChart() {
         />
       </AreaChart>
     </ResponsiveContainer>
-  );
+  )
 }
 
 function ProductChart() {
   const data = [
-    { mes: "JAN", vendas: 24, linha: 22 },
-    { mes: "FEV", vendas: 28, linha: 28 },
-    { mes: "MAR", vendas: 30, linha: 30 },
-    { mes: "ABR", vendas: 26, linha: 26 },
-    { mes: "MAI", vendas: 34, linha: 32 },
-    { mes: "JUN", vendas: 25, linha: 24 },
-    { mes: "JUL", vendas: 33, linha: 31 },
-    { mes: "AGO", vendas: 29, linha: 28 },
-    { mes: "SET", vendas: 35, linha: 34 },
-    { mes: "OUT", vendas: 28, linha: 27 },
-    { mes: "NOV", vendas: 32, linha: 31 },
-    { mes: "DEZ", vendas: 23, linha: 21 },
-  ];
+    { mes: 'JAN', vendas: 24, linha: 22 },
+    { mes: 'FEV', vendas: 28, linha: 28 },
+    { mes: 'MAR', vendas: 30, linha: 30 },
+    { mes: 'ABR', vendas: 26, linha: 26 },
+    { mes: 'MAI', vendas: 34, linha: 32 },
+    { mes: 'JUN', vendas: 25, linha: 24 },
+    { mes: 'JUL', vendas: 33, linha: 31 },
+    { mes: 'AGO', vendas: 29, linha: 28 },
+    { mes: 'SET', vendas: 35, linha: 34 },
+    { mes: 'OUT', vendas: 28, linha: 27 },
+    { mes: 'NOV', vendas: 32, linha: 31 },
+    { mes: 'DEZ', vendas: 23, linha: 21 },
+  ]
 
   return (
     <ResponsiveContainer width="100%" height={70}>
@@ -109,14 +109,14 @@ function ProductChart() {
 
         <XAxis
           dataKey="mes"
-          tick={{ fontSize: 10, fill: "#9CA3AF" }}
+          tick={{ fontSize: 10, fill: '#9CA3AF' }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis hide domain={[0, 40]} />
 
         <Tooltip
-          cursor={{ stroke: "#CBD5E1", strokeDasharray: "3 3" }}
+          cursor={{ stroke: '#CBD5E1', strokeDasharray: '3 3' }}
           contentStyle={{ fontSize: 12, borderRadius: 6 }}
         />
 
@@ -136,17 +136,17 @@ function ProductChart() {
           strokeWidth={2}
           strokeDasharray="5 5"
           strokeLinecap="round"
-          dot={{ r: 3, strokeWidth: 2, stroke: "#2D6EEA", fill: "#FFF" }}
-          activeDot={{ r: 4, strokeWidth: 3, stroke: "#2D6EEA", fill: "#FFF" }}
+          dot={{ r: 3, strokeWidth: 2, stroke: '#2D6EEA', fill: '#FFF' }}
+          activeDot={{ r: 4, strokeWidth: 3, stroke: '#2D6EEA', fill: '#FFF' }}
         />
       </ComposedChart>
     </ResponsiveContainer>
-  );
+  )
 }
 
 export function CashFlow() {
-  type Section = "saldo" | "Produtos digitais" | "Produtos físicos";
-  const [openSection, setOpenSection] = useState<Section | null>("saldo");
+  type Section = 'saldo' | 'Produtos digitais' | 'Produtos físicos'
+  const [openSection, setOpenSection] = useState<Section | null>('saldo')
 
   return (
     <div className="w-full max-w-[480px] h-[430px] rounded-lg border border-[#EAEEF4] bg-gradient-to-br from-zhex-secondary-400/20 from-[16%] to-zhex-base-500/20 p-6 flex flex-col gap-3">
@@ -166,14 +166,14 @@ export function CashFlow() {
 
       {/* saldo card */}
       <Collapsible.Root
-        open={openSection === "saldo"}
-        onOpenChange={(open) => setOpenSection(open ? "saldo" : null)}
+        open={openSection === 'saldo'}
+        onOpenChange={(open) => setOpenSection(open ? 'saldo' : null)}
         className="bg-gradient-to-br from-zhex-base-500/5 to-[46%] to-white rounded-lg border border-neutral-100 transition-shadow data-[state=open]:shadow-sm"
       >
         <Collapsible.Trigger asChild>
           <div className="flex items-center justify-between px-4 py-2 cursor-pointer">
             <p className="text-base font-medium">
-              Saldo disponível:{" "}
+              Saldo disponível:{' '}
               <span className="text-neutral-700 text-base">R$ 23.244,93</span>
             </p>
             <button className="text-zhex-base-500">
@@ -181,7 +181,7 @@ export function CashFlow() {
                 weight="fill"
                 size={20}
                 className={`text-zhex-base-500 transition-transform duration-300 ${
-                  openSection === "saldo" ? "rotate-180" : ""
+                  openSection === 'saldo' ? 'rotate-180' : ''
                 }`}
               />
             </button>
@@ -194,7 +194,7 @@ export function CashFlow() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="flex flex-col gap-3 px-4 py-2 overflow-hidden"
           >
             {/* bar */}
@@ -222,7 +222,7 @@ export function CashFlow() {
       </Collapsible.Root>
 
       {/* categorias */}
-      {(["Produtos digitais", "Produtos físicos"] as Section[]).map((cat) => (
+      {(['Produtos digitais', 'Produtos físicos'] as Section[]).map((cat) => (
         <Collapsible.Root
           key={cat}
           open={openSection === cat}
@@ -239,7 +239,7 @@ export function CashFlow() {
                 size={20}
                 weight="fill"
                 className={`text-zhex-base-500 transition-transform duration-300 ${
-                  openSection === cat ? "rotate-180" : ""
+                  openSection === cat ? 'rotate-180' : ''
                 }`}
               />
             </button>
@@ -250,7 +250,7 @@ export function CashFlow() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="px-4 mt-2 overflow-hidden"
             >
               <ProductChart />
@@ -267,5 +267,5 @@ export function CashFlow() {
         Efetuar retirada
       </button>
     </div>
-  );
+  )
 }

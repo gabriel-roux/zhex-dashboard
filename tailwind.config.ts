@@ -1,13 +1,13 @@
-import { zhexFundations } from "./src/styles/fundations";
-import type { Config } from "tailwindcss";
+import { zhexFundations } from './src/styles/fundations'
+import type { Config } from 'tailwindcss'
 
 export default {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: "class", // ou "media" se preferir
+  darkMode: 'class', // ou "media" se preferir
   theme: {
     extend: {
       colors: zhexFundations.colors,
@@ -22,4 +22,4 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config;
+} satisfies Config
