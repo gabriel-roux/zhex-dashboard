@@ -1,4 +1,4 @@
-export const zhexFundations = {
+export const zhexFoundations = {
   colors: {
     'zhex-base-400': '#9DB3FF',
     'zhex-base-500': '#5C7DFA',
@@ -40,7 +40,7 @@ export const zhexFundations = {
     'yellow-secondary-600': '#E4AC03',
 
     'green-secondary-400': '#BDF07F',
-    'green-secondary-500': '#9EE15D',
+    'green-secondary-500': '#22c55e',
     'green-secondary-600': '#73CE2D',
   },
   containers: {

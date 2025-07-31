@@ -5,6 +5,8 @@ import localFont from 'next/font/local'
 import '@/styles/globals.css'
 import React from 'react'
 import { AuthProvider } from '@/contexts/auth/provider'
+import { AuthGuard } from '@/contexts/auth/auth-guard'
+import { WebSocketProvider } from '@/contexts/websocket/provider'
 
 const interSans = Inter({
   variable: '--font-inter',
@@ -137,7 +139,11 @@ export default function RootLayout({
         className={`${interSans.variable} ${styleScript.variable} ${arabotoSans.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
+          <WebSocketProvider>
+            <AuthGuard>
+              {children}
+            </AuthGuard>
+          </WebSocketProvider>
         </AuthProvider>
       </body>
     </html>

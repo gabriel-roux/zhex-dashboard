@@ -18,9 +18,9 @@ const HALF_CIRCLE = CIRCLE_DIAMETER / 2
 
 export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
   const total = steps.length
-  const stepPercent = total > 1 ? 100 / (total - 1) : 0 // distância centro-a-centro em %
-  // const filledWidth = currentStep * stepPercent                 // barra azul até o centro do passo atual
-  const ratio = total > 1 ? currentStep / (total - 1) : 0
+  const ratio = total > 1
+    ? currentStep / (total - 1)
+    : 0
 
   return (
     <div className="relative w-full select-none mb-6">
@@ -59,7 +59,9 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                       : 'border-neutral-200 text-neutral-1000 bg-white',
                 )}
               >
-                {completed ? <CheckIcon size={14} /> : idx + 1}
+                {completed
+                  ? <CheckIcon size={14} />
+                  : idx + 1}
               </div>
 
               {/* Label */}

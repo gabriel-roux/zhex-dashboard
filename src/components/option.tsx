@@ -14,6 +14,8 @@ interface OptionProps {
   onSelect?: () => void
   /** Classe do botão */
   className?: string
+  /** Desabilitado */
+  disabled?: boolean
 }
 
 export function Option({
@@ -21,6 +23,7 @@ export function Option({
   icon: Icon,
   selected = false,
   onSelect,
+  disabled = false,
   className,
 }: OptionProps) {
   return (
@@ -32,6 +35,7 @@ export function Option({
         selected
           ? 'bg-zhex-base-500/20 text-zhex-base-500 border-zhex-base-500'
           : 'bg-neutral-0 text-neutral-1000 border-neutral-200 hover:bg-neutral-100',
+        disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
         className,
       )}
     >

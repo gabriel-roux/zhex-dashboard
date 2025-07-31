@@ -45,6 +45,12 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
+
+        // Remove Content-Type for FormData to let browser set it automatically
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type']
+        }
+
         return config
       },
       (error) => {
@@ -77,6 +83,7 @@ class ApiClient {
               const newTokens = await this.refreshAccessToken(refreshToken)
               if (newTokens) {
                 this.setToken(newTokens.accessToken)
+                // Keep the same refresh token
 
                 // Retry queued requests
                 this.failedQueue.forEach(({ resolve }) => {
@@ -122,6 +129,12 @@ class ApiClient {
   private setToken(token: string): void {
     if (typeof window !== 'undefined') {
       Cookies.set('user-token', token)
+    }
+  }
+
+  private setRefreshToken(token: string): void {
+    if (typeof window !== 'undefined') {
+      Cookies.set('refresh-token', token)
     }
   }
 
@@ -202,17 +215,26 @@ class ApiClient {
   }
 
   private handleError(error: any): Error {
-    if (error.response) {
-      // Server responded with error status
-      const message = error.response.data?.message || error.response.statusText
-      return new Error(message)
-    } else if (error.request) {
-      // Request was made but no response received
-      return new Error('Network error - no response received')
-    } else {
-      // Something else happened
-      return new Error(error.message || 'An unexpected error occurred')
+    // Check for specific error types
+    if (error.response?.data?.message === 'Produto não encontrado') {
+      const productNotFoundError = new Error('Produto não encontrado')
+      ;(productNotFoundError as any).isProductNotFound = true
+      ;(productNotFoundError as any).statusCode = error.response?.status
+      return productNotFoundError
     }
+
+    // Simply return the original error message from the server
+    if (error.response?.data?.message) {
+      const customError = new Error(error.response.data.message)
+      ;(customError as any).statusCode = error.response?.status
+      return customError
+    }
+
+    // Fallback to status text or original message
+    const message = error.response?.statusText || error.message || 'An unexpected error occurred'
+    const fallbackError = new Error(message)
+    ;(fallbackError as any).statusCode = error.response?.status
+    return fallbackError
   }
 }
 

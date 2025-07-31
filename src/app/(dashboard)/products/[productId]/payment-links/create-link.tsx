@@ -5,57 +5,172 @@ import { XCircleIcon } from '@phosphor-icons/react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Switch } from '@/components/switch'
+import { useApi } from '@/hooks/useApi'
+import { PriceField } from '@/components/price-field'
 
-// Schema de validação
-const createLinkSchema = z.object({
-  name: z.string().min(1, 'Nome do link é obrigatório'),
-  status: z.boolean(),
-  checkout: z.string().min(1, 'Selecione um checkout'),
-  isFreeOffer: z.boolean(),
-  price: z.string().min(1, 'Preço é obrigatório').refine((val) => {
-    const price = parseFloat(val.replace(/[^\d,]/g, '').replace(',', '.'))
-    return !isNaN(price) && price > 0
-  }, 'Preço deve ser um valor válido'),
-})
-
-type CreateLinkFormData = z.infer<typeof createLinkSchema>
-
-interface CreateLinkModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+interface PaymentLink {
+  id: string
+  name: string
+  checkout: {
+    id: string
+    name: string
+  }
+  price: {
+    baseAmount: number
+    baseCurrency: string
+    enabledCurrencies: string[]
+  }
+  isActive: boolean
+  accessUrl: string
 }
 
-const checkoutOptions = [
-  { value: 'zhex-default', label: 'Zhex Default Checkout' },
-  { value: 'custom-1', label: 'Checkout Personalizado 1' },
-  { value: 'custom-2', label: 'Checkout Personalizado 2' },
-]
+// Schema de validação
+const linkSchema = z.object({
+  name: z.string().min(1, 'Nome do link é obrigatório'),
+  checkout: z.string().min(1, 'Selecione um checkout'),
+  isFreeOffer: z.boolean(),
+  price: z.number().optional(),
+})
 
-export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
+type LinkFormData = z.infer<typeof linkSchema>
+
+interface PaymentLinkModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  productId: string
+  checkouts: Array<{ id: string; name: string; isActive: boolean }>
+  onLinkCreated: () => void
+  mode: 'create' | 'edit'
+  linkToEdit?: PaymentLink | null
+}
+
+export function PaymentLinkModal({
+  open,
+  onOpenChange,
+  productId,
+  checkouts,
+  onLinkCreated,
+  mode,
+  linkToEdit,
+}: PaymentLinkModalProps) {
   const [isFreeOffer, setIsFreeOffer] = useState(false)
   const [isStatusActive, setIsStatusActive] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const { control, register, handleSubmit, formState: { errors } } = useForm<CreateLinkFormData>({
-    resolver: zodResolver(createLinkSchema),
+  const { post, put } = useApi()
+
+  const { control, register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<LinkFormData>({
+    resolver: zodResolver(linkSchema),
     defaultValues: {
-      name: 'Oferta para clientes novos',
-      status: true,
-      checkout: 'zhex-default',
-      isFreeOffer: false,
-      price: '190,00',
+      name: mode === 'edit' && linkToEdit
+        ? linkToEdit.name
+        : 'Oferta para clientes novos',
+      checkout: mode === 'edit' && linkToEdit
+        ? linkToEdit.checkout.id
+        : '',
+      isFreeOffer: mode === 'edit' && linkToEdit
+        ? linkToEdit.price.baseAmount === 0
+        : false,
+      price: mode === 'edit' && linkToEdit
+        ? linkToEdit.price.baseAmount
+        : 0,
     },
   })
 
-  const onSubmit = (data: CreateLinkFormData) => {
-    console.log('Form data:', data)
-    // TODO: Implementar criação do link
-    onOpenChange(false)
+  // Watch isFreeOffer para validação condicional
+  const watchedIsFreeOffer = watch('isFreeOffer')
+
+  // Atualizar schema quando isFreeOffer muda
+  useEffect(() => {
+    if (watchedIsFreeOffer) {
+      setValue('price', 0)
+    }
+  }, [watchedIsFreeOffer, setValue])
+
+  // Resetar formulário quando modal abre/fecha ou muda o modo
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: mode === 'edit' && linkToEdit
+          ? linkToEdit.name
+          : 'Oferta para clientes novos',
+        checkout: mode === 'edit' && linkToEdit
+          ? linkToEdit.checkout.id
+          : '',
+        isFreeOffer: mode === 'edit' && linkToEdit
+          ? linkToEdit.price.baseAmount === 0
+          : false,
+        price: mode === 'edit' && linkToEdit
+          ? linkToEdit.price.baseAmount
+          : 0,
+      })
+      setIsFreeOffer(mode === 'edit' && linkToEdit
+        ? linkToEdit.price.baseAmount === 0
+        : false)
+      setIsStatusActive(mode === 'edit' && linkToEdit
+        ? linkToEdit.isActive
+        : true)
+    }
+  }, [open, mode, linkToEdit, reset])
+
+  const onSubmit = async (data: LinkFormData) => {
+    try {
+      setLoading(true)
+
+      if (mode === 'create') {
+        const response = await post<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links`, {
+          name: data.name,
+          checkoutId: data.checkout,
+          isFreeOffer: data.isFreeOffer,
+          price: data.price || 0,
+        })
+
+        if (response.data.success) {
+          onLinkCreated()
+          onOpenChange(false)
+          setError(null)
+        } else {
+          setError(response.data.message)
+        }
+      } else if (mode === 'edit' && linkToEdit) {
+        const response = await put<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links/${linkToEdit.id}`, {
+          name: data.name,
+          checkoutId: data.checkout,
+          isActive: isStatusActive,
+          isFreeOffer: data.isFreeOffer,
+          price: data.price || 0,
+        })
+
+        if (response.data.success) {
+          onLinkCreated()
+          onOpenChange(false)
+          setError(null)
+        } else {
+          setError(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error(`Erro ao ${mode === 'create'
+? 'criar'
+: 'editar'} link:`, error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={open} onOpenChange={
+      (open) => {
+        onOpenChange(open)
+        reset()
+        setError(null)
+      }
+    }
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-neutral-1000/50 backdrop-blur-sm z-50" />
         <Dialog.Content
@@ -69,7 +184,9 @@ export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-neutral-200 flex-shrink-0">
               <Dialog.Title className="text-lg font-araboto font-medium text-neutral-1000">
-                Criar novo link
+                {mode === 'create'
+                  ? 'Criar novo link'
+                  : 'Editar link'}
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button
@@ -116,7 +233,7 @@ export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
                   <SelectField
                     name="checkout"
                     control={control}
-                    options={checkoutOptions}
+                    options={checkouts.map(checkout => ({ value: checkout.id, label: checkout.name }))}
                     placeholder="Selecione o checkout"
                     error={errors.checkout?.message}
                   />
@@ -128,22 +245,7 @@ export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
                     <label className="text-neutral-1000 font-medium font-araboto text-base">
                       Oferta gratuita:
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setIsFreeOffer(!isFreeOffer)}
-                      className={`w-8 h-5 rounded-full duration-300 transition-colors ${
-                      isFreeOffer
-? 'bg-green-secondary-500'
-: 'bg-neutral-300'
-                    } relative cursor-pointer`}
-                    >
-                      <div className={`w-3 h-3 bg-white rounded-full absolute top-1 duration-300 transition-all ${
-                      isFreeOffer
-? 'right-1'
-: 'left-1'
-                    }`}
-                      />
-                    </button>
+                    <Switch active={isFreeOffer} setValue={setIsFreeOffer} />
                   </div>
                   <p className="text-neutral-500 text-sm">
                     Ao ativar, você não poderá editar o preço da oferta.
@@ -155,14 +257,21 @@ export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
                   <label className="text-neutral-1000 font-medium font-araboto text-base mb-2 block">
                     Preço:
                   </label>
-                  <TextField
-                    {...register('price')}
-                    placeholder="R$ 190,00"
+                  <PriceField
+                    name="price"
+                    placeholder="129,40"
+                    withoutCurrencySelector
+                    control={control}
                     error={errors.price?.message}
                     disabled={isFreeOffer}
                   />
                 </div>
 
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
               </div>
 
               {/* Botão de criar - Fixo no final */}
@@ -172,8 +281,11 @@ export function CreateLinkModal({ open, onOpenChange }: CreateLinkModalProps) {
                   variant="primary"
                   size="full"
                   className="w-full"
+                  loading={loading}
                 >
-                  Criar novo link
+                  {mode === 'create'
+                    ? 'Criar novo link'
+                    : 'Salvar alterações'}
                 </Button>
               </div>
             </form>

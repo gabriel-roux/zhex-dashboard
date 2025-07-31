@@ -1,35 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ProductCard } from '@/components/product-card'
+import { ProductCardSkeleton } from '@/components/skeletons/product-card-skeleton'
 import { SwitchButton } from '@/components/switch-button'
-import { FunnelSimpleIcon } from '@phosphor-icons/react'
+import { TagIcon } from '@phosphor-icons/react'
 import { Pagination } from '@/components/pagination'
+import { useProducts } from '@/hooks/useProducts'
 import Link from 'next/link'
 
-const mockProducts = Array.from({ length: 12 }).map((_, idx) => ({
-  id: idx,
-  status: idx % 2 === 0
-    ? 'Ativo'
-    : 'Inativo', // alterna status só para exemplo
-}))
-
 export function ProductList() {
-  const [currentPage, setCurrentPage] = useState(1)
   const [filter, setFilter] = useState<'Todos' | 'Ativo' | 'Inativo'>('Todos')
-  const pageSize = 8
+  const { products, loading, total, page, totalPages, fetchProducts } = useProducts()
 
-  // Filtra produtos conforme o filtro selecionado
-  const filteredProducts =
-    filter === 'Todos'
-      ? mockProducts
-      : mockProducts.filter((p) => p.status === filter)
+  // Buscar produtos quando o filtro mudar
+  useEffect(() => {
+    const status = filter === 'Todos'
+      ? undefined
+      : filter
+    fetchProducts(1, 8, status)
+  }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const totalItems = filteredProducts.length
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  )
+  const handlePageChange = (newPage: number) => {
+    const status = filter === 'Todos'
+      ? undefined
+      : filter
+    fetchProducts(newPage, 8, status)
+  }
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value as 'Todos' | 'Ativo' | 'Inativo')
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -37,33 +38,62 @@ export function ProductList() {
         <SwitchButton
           items={['Todos', 'Ativo', 'Inativo']}
           active={filter}
-          onChange={(value) => setFilter(value as 'Todos' | 'Ativo' | 'Inativo')}
+          onChange={handleFilterChange}
         />
-
-        <div className="flex items-center gap-2">
-          <button className="w-12 h-12 rounded-lg border text-neutral-500 border-neutral-200 hover:bg-neutral-100 transition-colors flex items-center justify-center bg-white">
-            <FunnelSimpleIcon size={20} weight="bold" />
-          </button>
-        </div>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {paginatedProducts.map((product) => (
-          <Link
-            href={`/products/${product.id}/`}
-            key={product.id}
-          >
-            <ProductCard />
-          </Link>
-        ))}
-      </div>
+      {loading
+        ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
+            ))}
+          </div>
+          )
+        : products.length === 0
+          ? (
+            <div style={{ marginTop: '40px' }} className="w-full bg-white rounded-lg px-5 mb-10 flex flex-col justify-center items-center gap-4">
+              <div className="w-12 h-12 bg-zhex-base-500/15 rounded-full flex items-center justify-center">
+                <TagIcon
+                  size={28}
+                  weight="bold"
+                  className="text-zhex-base-500"
+                />
+              </div>
 
-      <Pagination
-        totalItems={totalItems}
-        pageSize={pageSize}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
+              <div className="text-center">
+                <h2 className="text-lg font-araboto font-semibold text-neutral-950">
+                  Nenhum produto encontrado
+                </h2>
+                <p className="text-neutr-500 font-araboto">
+                  Nenhum produto encontrado. Crie um produto para começar a vender.
+                </p>
+              </div>
+            </div>
+            )
+          : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {products.map((product) => (
+                <Link
+                  href={`/products/${product.id}/`}
+                  key={product.id}
+                >
+                  <ProductCard
+                    product={product}
+                  />
+                </Link>
+              ))}
+            </div>
+            )}
+
+      {totalPages > 1 && (
+        <Pagination
+          totalItems={total}
+          pageSize={8}
+          currentPage={page}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   )
 }

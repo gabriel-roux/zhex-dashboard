@@ -3,6 +3,7 @@
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { TextField, SelectField, Textarea } from '@/components/textfield'
+import { PriceField } from '@/components/price-field'
 import { useForm } from 'react-hook-form'
 import React, { useRef, useState } from 'react'
 import { LinkIcon, UploadIcon, XIcon } from '@phosphor-icons/react'
@@ -11,6 +12,8 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as Dialog from '@radix-ui/react-dialog'
 import { SuccessModal } from './success-modal'
+import { useApi } from '@/hooks/useApi'
+import Cookies from 'js-cookie'
 
 const productSchema = z.object({
   name: z.string().nonempty('Nome obrigatório'),
@@ -19,13 +22,18 @@ const productSchema = z.object({
   payment: z.string().optional(),
   landingPage: z.string().url('URL inválida'),
   description: z.string().nonempty('Descrição obrigatória'),
-  price: z.string().nonempty('Preço obrigatório'),
+  price: z.number().min(1, 'Preço obrigatório').max(99999999, 'Preço muito alto'),
   aceite: z.literal(true, { message: 'Obrigatório aceitar os termos' }),
+  images: z.array(z.instanceof(File)).min(1, 'Pelo menos uma imagem é obrigatória').max(4, 'Máximo 4 imagens'),
 })
 
 export default function CreateProductPage() {
   const [modalOpen, setModalOpen] = useState(false)
-  const { control, handleSubmit, watch, register, formState: { errors } } = useForm({
+  const [productId, setProductId] = useState<string>('')
+  const [selectedCurrency, setSelectedCurrency] = useState('BRL')
+  const api = useApi()
+
+  const { control, handleSubmit, watch, register, formState: { errors, isSubmitting }, setValue } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
@@ -34,8 +42,9 @@ export default function CreateProductPage() {
       payment: '',
       landingPage: '',
       description: '',
-      price: '',
+      price: 0,
       aceite: true,
+      images: [],
     },
   })
 
@@ -52,7 +61,9 @@ export default function CreateProductPage() {
         file.size <= 50 * 1024 * 1024,
     )
     if (images.length + files.length > 4) return
-    setImages((prev) => [...prev, ...files].slice(0, 4))
+    const newImages = [...images, ...files].slice(0, 4)
+    setImages(newImages)
+    setValue('images', newImages)
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -62,25 +73,72 @@ export default function CreateProductPage() {
         file.size <= 50 * 1024 * 1024,
     )
     if (images.length + files.length > 4) return
-    setImages((prev) => [...prev, ...files].slice(0, 4))
+    const newImages = [...images, ...files].slice(0, 4)
+    setImages(newImages)
+    setValue('images', newImages)
   }
 
   function handleRemove(idx: number) {
-    setImages((prev) => prev.filter((_, i) => i !== idx))
+    const newImages = images.filter((_, i) => i !== idx)
+    setImages(newImages)
+    setValue('images', newImages)
   }
 
   function handleClick() {
     inputRef.current?.click()
   }
-  function onSubmit(data: z.infer<typeof productSchema>) {
-    console.log(data)
-    setModalOpen(true)
+  async function onSubmit(data: z.infer<typeof productSchema>) {
+    try {
+      // Criar produto primeiro
+      const productResponse = await api.post('/products', {
+        name: data.name,
+        type: data.type,
+        category: data.category,
+        payment: data.payment,
+        landingPage: data.landingPage,
+        description: data.description,
+        price: data.price,
+      })
+
+      const { success, data: product } = productResponse.data as { success: boolean, data: { id: string } }
+
+      if (success) {
+        // Upload das imagens usando fetch diretamente para suportar FormData
+        const uploadPromises = data.images.map(async (image, index) => {
+          const formData = new FormData()
+          formData.append('file', image)
+          formData.append('isDefault', index === 0
+            ? 'true'
+            : 'false') // Primeira imagem como default
+
+          const token = Cookies.get('user-token') || ''
+
+          return fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${product.id}/images`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          })
+        })
+
+        await Promise.all(uploadPromises)
+
+        setModalOpen(true)
+        setProductId(product.id)
+      } else {
+        // ... TODO: handle error
+      }
+    } catch (error) {
+      console.error('Erro ao criar produto:', error)
+      // ... TODO: handle error
+    }
   }
 
   return (
     <>
       <Dialog.Root open={modalOpen} onOpenChange={setModalOpen}>
-        <SuccessModal />
+        <SuccessModal productId={productId} />
 
         <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
           <Container className="flex items-start justify-between w-full mt-6 px-2">
@@ -95,7 +153,7 @@ export default function CreateProductPage() {
               </p>
             </div>
 
-            <Button size="medium" variant="primary" type="submit" className="w-[180px]">
+            <Button size="medium" loading={isSubmitting} variant="primary" type="submit" className="w-[180px]">
               Salvar
             </Button>
           </Container>
@@ -200,13 +258,18 @@ export default function CreateProductPage() {
                       />
                     </div>
                   </div>
-                  <label
-                    htmlFor="description"
-                    className="text-neutral-1000 font-medium text-base font-araboto"
-                  >
-                    O que é seu produto?{' '}
-                    <span className="text-red-secondary-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="description"
+                      className="text-neutral-1000 font-medium text-base font-araboto"
+                    >
+                      O que é seu produto?{' '}
+                      <span className="text-red-secondary-500">*</span>
+                    </label>
+                    <span className="text-neutral-400 text-sm">
+                      {watch('description')?.length || 0}/200
+                    </span>
+                  </div>
                   <Textarea
                     {...register('description')}
                     error={errors.description?.message}
@@ -225,11 +288,13 @@ export default function CreateProductPage() {
                       Na Zhex você consegue configurar diferentes moedas para o seu
                       produto, não se limitar a apenas uma.
                     </span>
-                    <TextField
-                      {...register('price')}
-                      error={errors.price?.message}
+                    <PriceField
                       name="price"
+                      control={control}
+                      error={errors.price?.message}
                       placeholder="129,40"
+                      selectedCurrency={selectedCurrency}
+                      onCurrencyChange={setSelectedCurrency}
                     />
                   </div>
                   <div className="flex items-center gap-2 mt-2">
@@ -270,7 +335,7 @@ export default function CreateProductPage() {
                       Máx. 50mb tamanho na extensão png e jpeg.
                     </span>
                   </div>
-                  <div className="flex gap-4 mt-2">
+                  <div className="flex gap-4 mt-2 mb-2">
                     {Array.from({ length: 4 }).map((_, idx) => (
                       <div
                         key={idx}
@@ -303,6 +368,11 @@ export default function CreateProductPage() {
                       </div>
                     ))}
                   </div>
+                  {errors.images && (
+                    <span className="text-red-secondary-500 text-sm">
+                      {errors.images.message}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

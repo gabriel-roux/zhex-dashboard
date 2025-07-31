@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import ProductCover from '@/assets/images/product-cover.png'
 import { ArrowsOutIcon, ArrowUpIcon } from '@phosphor-icons/react'
+import { ProductProps, ProductStatus } from '@/@types/product'
 
 // Dados do gráfico
 const chartData = [
@@ -41,33 +41,56 @@ const CustomTooltip = ({
   )
 }
 
-export function ProductSalesInformations() {
+export function ProductSalesInformations({ product }: { product: ProductProps }) {
   return (
-    <div className="flex items-center gap-6 w-full mt-4">
+    <div className="flex items-center justify-between gap-6 w-full mt-4">
       {/* Left Section - Product Card */}
       <div className="flex items-start gap-6">
         <div className="w-[180px] min-h-[180px] flex-shrink-0">
           <div className="bg-neutral-50 rounded-2xl p-4 h-[180px] w-full shadow-sm border-2 border-dashed justify-center items-center flex border-neutral-200">
-            <Image src={ProductCover} alt="Product Cover" width={86} height={130} className="object-contain" />
+            <Image
+              src={
+              product.defaultImage?.fileUrl || ''
+            } alt="Product Cover" width={150} height={150} className="object- rounded-lg"
+            />
           </div>
         </div>
 
         {/* Middle Section - Product Details */}
         <div className="">
           {/* Status */}
-          <div className="flex items-center gap-2 mb-2 bg-green-secondary-500/20 rounded-md px-2 py-1 w-fit">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-sm font-medium text-green-600">Ativo</span>
+          <div className={`flex items-center gap-2 mb-2 rounded-md px-2 py-1 w-fit ${
+            product.status === ProductStatus.ACTIVE
+              ? 'bg-green-secondary-500/20'
+              : 'bg-neutral-500/20'
+          }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${
+              product.status === ProductStatus.ACTIVE
+                ? 'bg-green-500'
+                : 'bg-neutral-500'
+            }`}
+            />
+            <span className={`text-sm font-medium ${
+              product.status === ProductStatus.ACTIVE
+                ? 'text-green-600'
+                : 'text-neutral-600'
+            }`}
+            >
+              {product.status === ProductStatus.ACTIVE
+                ? 'Ativo'
+                : 'Inativo'}
+            </span>
           </div>
 
           {/* Product Title */}
           <h2 className="text-xl font-araboto font-bold text-neutral-1000 mb-2">
-            Livro de Donald A. Norman, Publicado em 2016: O Design do Dia a Dia
+            {product.name}
           </h2>
 
           {/* Product Description */}
           <p className="text-neutral-600 text-base leading-relaxed">
-            There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words.
+            {product.description}
           </p>
         </div>
       </div>

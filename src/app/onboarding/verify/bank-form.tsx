@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { SelectField, TextField } from '@/components/textfield'
 import { banks } from '@/assets/lists/banks'
+import { BankAccountData, OnboardingStatus } from '@/@types/onboarding'
+import { Button } from '@/components/button'
 
 /* -------------------------------------------------------------------------- */
 /* Schema                                                                     */
@@ -26,7 +28,19 @@ type FormValues = z.infer<typeof bankSchema>
 /* -------------------------------------------------------------------------- */
 /* Component                                                                  */
 /* -------------------------------------------------------------------------- */
-export default function BankForm() {
+interface BankFormProps {
+  onSubmit: (data: BankAccountData) => Promise<OnboardingStatus>
+  isLoading?: boolean
+  error?: string | null
+  setCurrentStep: (step: number) => void
+}
+
+export default function BankForm({
+  onSubmit,
+  isLoading = false,
+  error,
+  setCurrentStep,
+}: BankFormProps) {
   const {
     register,
     control,
@@ -36,10 +50,30 @@ export default function BankForm() {
     resolver: zodResolver(bankSchema),
   })
 
-  const onSubmit = (data: FormValues) => console.log(data)
+  const handleFormSubmit = async (data: FormValues) => {
+    try {
+      // Mapear dados do formulário para o formato da API
+      const bankData: BankAccountData = {
+        bankCode: data.bank,
+        bankName: banks.find(b => b.COMPE === data.bank)?.LongName || '',
+        agency: data.agencyNumber,
+        account: data.accountNumber,
+        accountType: 'CHECKING', // Default para conta corrente
+      }
+
+      const result = await onSubmit(bankData) as { nextStep?: { step: number; title: string; description: string } }
+
+      if (result?.nextStep) {
+        const nextStepIndex = result.nextStep.step - 1
+        setCurrentStep(nextStepIndex)
+      }
+    } catch (error) {
+      console.error('Erro ao enviar dados bancários:', error)
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="flex flex-col gap-4">
         {/* header */}
         <div className="flex flex-col">
@@ -102,6 +136,26 @@ export default function BankForm() {
               error={errors.confirmAccountNumber?.message}
             />
           </div>
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex items-center gap-4 mt-8">
+          <Button
+            size="large"
+            loading={isLoading}
+            type="submit"
+            variant="primary"
+            className="w-[222px]"
+          >
+            Continuar
+          </Button>
         </div>
       </div>
     </form>

@@ -17,7 +17,11 @@ import {
 
 import { usePathname } from 'next/navigation'
 import { ProfileMenu } from './profile-menu'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useApi } from '@/hooks/useApi'
+import { CompanyProps } from '@/@types/company'
+import { useAuth } from '@/contexts/auth/context'
+import Image from 'next/image'
 
 type NavLink = {
   href: string
@@ -52,6 +56,12 @@ interface HeaderProps {
 
 export function Header({ desactived = false }: HeaderProps) {
   const pathname = usePathname()
+  const api = useApi()
+
+  const { user } = useAuth()
+  const [companies, setCompanies] = useState<CompanyProps[]>([])
+
+  const company = companies.find((company) => company.id === user?.companyId)
 
   /**
    * Resolve qual link está ativo com base no pathname atual.
@@ -66,6 +76,18 @@ export function Header({ desactived = false }: HeaderProps) {
 
   const ActiveIcon = active.Icon
   const activeLabel = active.label
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      const response = await api.get<CompanyProps[]>('/company')
+
+      console.log(response.data)
+
+      setCompanies(response.data)
+    }
+
+    fetchCompanies()
+  }, [])
 
   return (
     <header className="mx-auto w-full md:max-w-screen-lg 2xl:max-w-screen-xl 3xl:max-w-screen-2xl mt-4 h-16">
@@ -120,17 +142,40 @@ export function Header({ desactived = false }: HeaderProps) {
           </button>
 
           {/* Company selector */}
-          <ProfileMenu>
+          <ProfileMenu companies={companies} desactived={desactived}>
             <button
               type="button"
               className="flex items-center gap-2 h-10 px-3 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors outline-none"
             >
-              <div className="w-6 h-6 rounded-full bg-neutral-25 flex items-center justify-center border border-neutral-300">
-                <ImageSquareIcon size={14} className="text-neutral-700" />
-              </div>
-              <span className="text-neutral-900 font-araboto text-sm">
-                Sua empresa aqui
-              </span>
+              {company?.avatarUrl
+                ? (
+                  <Image
+                    src={company.avatarUrl}
+                    alt={company.legalName}
+                    width={24}
+                    height={24}
+                    className="rounded-full w-6 h-6 object-cover"
+                  />
+                  )
+                : (
+                  <div className="w-6 h-6 rounded-full bg-neutral-25 flex items-center justify-center border border-neutral-300">
+                    <ImageSquareIcon size={14} className="text-neutral-700" />
+                  </div>
+                  )}
+
+              {
+                desactived
+                  ? (
+                    <span className="text-neutral-900 font-araboto text-sm">
+                      Sua empresa aqui
+                    </span>
+                    )
+                  : (
+                    <span className="text-neutral-900 font-araboto text-sm">
+                      {company?.legalName}
+                    </span>
+                    )
+              }
               <CaretDownIcon size={14} className="text-neutral-400" />
             </button>
           </ProfileMenu>

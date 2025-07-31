@@ -11,10 +11,26 @@ import {
 } from '@phosphor-icons/react'
 import { Option } from '@/components/option'
 import { BuildingIcon, UserIcon } from '@phosphor-icons/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion' // suave animação no thumb
+import { CreateCompanyProfileData, businessTypeMapping, companySizeMapping } from '@/@types/onboarding'
+import { Button } from '@/components/button'
 
-export function InitOnboarding() {
+interface InitOnboardingProps {
+  onSubmit: (data: CreateCompanyProfileData) => Promise<unknown>
+  isLoading: boolean
+  error: string | null
+  onClearError: () => void
+  setCurrentStep: (step: number) => void
+}
+
+export function InitOnboarding({
+  onSubmit,
+  isLoading,
+  error,
+  onClearError,
+  setCurrentStep,
+}: InitOnboardingProps) {
   // slider steps
   const sizeSteps = [
     { value: 1, label: '1‑10' },
@@ -46,6 +62,49 @@ export function InitOnboarding() {
     (s) => s.value === Math.round(sizeValue[0]),
   )!
 
+  const handleSubmit = async () => {
+    if (!selectedCompany) {
+      alert('Selecione um tipo de empresa')
+      return
+    }
+
+    try {
+      const data: CreateCompanyProfileData = {
+        companyType: personType === 'pf'
+          ? 'INDIVIDUAL'
+          : 'CORPORATION',
+        businessType: businessTypeMapping[selectedCompany],
+        companySize: companySizeMapping[displaySize.label],
+      }
+
+      const result = await onSubmit(data) as { nextStep?: { step: number; title: string; description: string } }
+
+      if (result?.nextStep) {
+        const nextStepIndex = result.nextStep.step - 1
+
+        setCurrentStep(nextStepIndex)
+      }
+    } catch (err) {
+      console.error('Erro ao criar perfil:', err)
+    }
+  }
+
+  // Limpar erro quando mudar os campos
+  const handlePersonTypeChange = (type: 'pf' | 'pj') => {
+    setPersonType(type)
+    onClearError()
+  }
+
+  const handleCompanyTypeChange = (type: string) => {
+    setSelectedCompany(type)
+    onClearError()
+  }
+
+  const handleSizeChange = (value: number[]) => {
+    setSizeValue(value)
+    onClearError()
+  }
+
   return (
     <>
       <div className="flex flex-col">
@@ -63,13 +122,13 @@ export function InitOnboarding() {
           label="Pessoa Física ( PF )"
           icon={UserIcon}
           selected={personType === 'pf'}
-          onSelect={() => setPersonType('pf')}
+          onSelect={() => handlePersonTypeChange('pf')}
         />
         <Option
           label="Pessoa Jurídica ( PJ )"
           icon={BuildingIcon}
           selected={personType === 'pj'}
-          onSelect={() => setPersonType('pj')}
+          onSelect={() => handlePersonTypeChange('pj')}
         />
       </div>
 
@@ -106,7 +165,7 @@ export function InitOnboarding() {
                               : GlobeIcon
               }
               selected={selectedCompany === type}
-              onSelect={() => setSelectedCompany(type)}
+              onSelect={() => handleCompanyTypeChange(type)}
             />
           ))}
         </div>
@@ -131,8 +190,8 @@ export function InitOnboarding() {
           max={5}
           step={0.1}
           value={sizeValue}
-          onValueChange={setSizeValue}
-          onValueCommit={(v) => setSizeValue([Math.round(v[0])])}
+          onValueChange={handleSizeChange}
+          onValueCommit={(v) => handleSizeChange([Math.round(v[0])])}
         >
           <Slider.Track className="relative h-1.5 w-full grow rounded-full bg-neutral-100">
             <Slider.Range className="absolute h-full rounded-full bg-zhex-base-500" />
@@ -148,6 +207,26 @@ export function InitOnboarding() {
             />
           </Slider.Thumb>
         </Slider.Root>
+      </div>
+
+      {error && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
+      {/* Botão de submit */}
+      <div className="flex items-center gap-4 mt-8">
+        <Button
+          size="large"
+          loading={isLoading}
+          onClick={handleSubmit}
+          disabled={isLoading || !selectedCompany}
+          variant="primary"
+          className="w-[222px]"
+        >
+          Continuar
+        </Button>
       </div>
     </>
   )

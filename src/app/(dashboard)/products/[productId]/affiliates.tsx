@@ -1,29 +1,12 @@
-import { useForm, Controller } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller } from 'react-hook-form'
 import { TextField, SelectField } from '@/components/textfield'
 import * as Checkbox from '@radix-ui/react-checkbox'
-import * as Dialog from '@radix-ui/react-dialog'
-import { CheckIcon, XCircleIcon } from '@phosphor-icons/react'
+import { CheckIcon, LinkIcon, PercentIcon } from '@phosphor-icons/react'
 import { Switch } from '@/components/switch'
-import { useState, useRef } from 'react'
-import { Button } from '@/components/button'
-
-const affiliateFormSchema = z.object({
-  active: z.boolean(),
-  autoApprove: z.boolean().optional(),
-  extendCommission: z.boolean().optional(),
-  shareCustomerData: z.boolean().optional(),
-  commissionPrice: z.string().optional(),
-  validityPeriod: z.string().optional(),
-  affiliateName: z.string().optional(),
-  affiliateEmail: z.string().optional(),
-  affiliatePhone: z.string().optional(),
-  salesPage: z.string().optional(),
-  affiliateRule: z.string().optional(),
-})
-
-type AffiliateFormData = z.infer<typeof affiliateFormSchema>
+import { useState, useRef, useEffect } from 'react'
+import { useProductAffiliateForm, AffiliateFormData } from '@/hooks/useProductAffiliateForm'
+import { ConfirmationModal } from '@/components/confirmation-modal'
+import clsx from 'clsx'
 
 const validityOptions = [
   { value: '30', label: '30 dias' },
@@ -33,18 +16,15 @@ const validityOptions = [
   { value: '365', label: '1 ano' },
 ]
 
-export function ProductAffiliates() {
-  const { register, watch, setValue, control, formState: { errors } } = useForm<AffiliateFormData>({
-    resolver: zodResolver(affiliateFormSchema),
-    defaultValues: {
-      active: false,
-      autoApprove: false,
-      extendCommission: false,
-      shareCustomerData: false,
-    },
-  })
+interface ProductAffiliatesProps {
+  form: ReturnType<typeof useProductAffiliateForm>['form']
+  paymentLinks: Array<{ id: string; name: string; price: { baseAmount: number } }>
+}
 
-  const active = watch('active')
+export function ProductAffiliates({ form, paymentLinks }: ProductAffiliatesProps) {
+  const { watch, setValue, control, formState: { errors } } = form
+
+  const active = watch('isActive')
   const [isBold, setIsBold] = useState(false)
   const [isItalic, setIsItalic] = useState(false)
   const [isUnderline, setIsUnderline] = useState(false)
@@ -60,8 +40,19 @@ export function ProductAffiliates() {
     setIsUnderline(document.queryCommandState('underline'))
   }
 
+  // Sincronizar o conteúdo do editor quando o valor do campo mudar
+  useEffect(() => {
+    const currentValue = watch('affiliationRules')
+    if (editorRef.current && currentValue !== undefined) {
+      // Só atualiza se o conteúdo for diferente para evitar conflitos
+      if (editorRef.current.innerText !== currentValue) {
+        editorRef.current.innerText = currentValue || ''
+      }
+    }
+  }, [watch('affiliationRules')])
+
   const handleDeactivate = () => {
-    setValue('active', false)
+    setValue('isActive', false)
     setShowDeactivateModal(false)
   }
 
@@ -86,6 +77,13 @@ export function ProductAffiliates() {
     />
   )
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(amount / 100)
+  }
+
   return (
     <>
       <div className="flex flex-col gap-8 mt-10">
@@ -99,7 +97,7 @@ export function ProductAffiliates() {
                   // Se está ativo e quer desativar, mostra modal
                   setShowDeactivateModal(true)
                 } else {
-                  setValue('active', value)
+                  setValue('isActive', value)
                 }
               }}
             />
@@ -128,15 +126,15 @@ export function ProductAffiliates() {
             {/* Toggles de configurações */}
             <div className="flex flex-row gap-12 items-center">
               <ToggleField
-                name="autoApprove"
+                name="autoApproveAffiliates"
                 label="Aprovar afiliados automaticamente"
               />
               <ToggleField
-                name="extendCommission"
+                name="enableExtendedCommission"
                 label="Estender comissão: order bump, cross sell, upsell e downsell"
               />
               <ToggleField
-                name="shareCustomerData"
+                name="shareBuyerDataWithAffiliate"
                 label="Compartilhar os dados do comprador com o afiliado"
               />
             </div>
@@ -148,14 +146,21 @@ export function ProductAffiliates() {
                   Comissão de preço único:
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">
-                    %
-                  </span>
-                  <TextField
-                    {...register('commissionPrice')}
-                    placeholder="0"
-                    className="pl-8"
-                    error={errors.commissionPrice?.message}
+                  <Controller
+                    name="commissionValue"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        type="number"
+                        placeholder="0"
+                        leftIcon={<PercentIcon size={18} />}
+                        min={1}
+                        max={100}
+                        error={errors.commissionValue?.message}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -165,11 +170,11 @@ export function ProductAffiliates() {
                   Validade do afiliado:
                 </label>
                 <SelectField
-                  name="validityPeriod"
+                  name="commissionValidityPeriod"
                   control={control}
                   options={validityOptions}
                   placeholder="Selecione um período"
-                  error={errors.validityPeriod?.message}
+                  error={errors.commissionValidityPeriod?.message}
                 />
               </div>
             </div>
@@ -181,67 +186,61 @@ export function ProductAffiliates() {
                   Links de pagamento:
                 </h3>
                 <p className="text-sm text-neutral-500">
-                  Você pode criar uma assinatura com um ou mais planos. Essas opções estarão disponíveis para o comprador no Checkout.
+                  Selecione os links de pagamento que estarão disponíveis para afiliados.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Link 1 */}
-                <div className="border border-neutral-100 rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Checkbox.Root
-                        className="w-5 h-5 border-2 border-neutral-300 rounded-md bg-white flex items-center justify-center data-[state=checked]:bg-zhex-base-500 data-[state=checked]:border-zhex-base-500 transition-colors"
-                      >
-                        <Checkbox.Indicator>
-                          <CheckIcon size={14} className="text-white" />
-                        </Checkbox.Indicator>
-                      </Checkbox.Root>
-                      <span className="font-medium text-lg text-neutral-1000">Nome do link</span>
-                    </div>
-                    <div className="text-lg font-semibold text-neutral-500">
-                      R${' '}
-                      <span className="font-semibold text-lg text-neutral-1000">30,00</span>
-                    </div>
-                  </div>
-                  <div className="text-base text-neutral-400 mt-2">
-                    <p>https://designdodiadia.com.br/produto 1</p>
-                    <div className="flex items-center justify-between gap-4 mt-4">
-                      <span className="text-base">Taxas: <span className="text-red-500">R$ 2,49</span></span>
-                      <span className="text-base">Você recebe: <span className="text-green-500">R$ 12,49</span></span>
-                      <span className="text-base">Afiliado recebe: <span className="text-neutral-1000 font-semibold">R$ 14,00</span></span>
-                    </div>
-                  </div>
-                </div>
+                {paymentLinks.map((link) => {
+                  const isSelected = watch('paymentLinkIds').includes(link.id)
+                  const commissionAmount = (link.price.baseAmount * watch('commissionValue')) / 100
+                  const netAmount = link.price.baseAmount - commissionAmount
 
-                {/* Link 2 */}
-                <div className="border border-neutral-100 rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Checkbox.Root
-                        className="w-5 h-5 border-2 border-neutral-300 rounded-md bg-white flex items-center justify-center data-[state=checked]:bg-zhex-base-500 data-[state=checked]:border-zhex-base-500 transition-colors"
-                      >
-                        <Checkbox.Indicator>
-                          <CheckIcon size={14} className="text-white" />
-                        </Checkbox.Indicator>
-                      </Checkbox.Root>
-                      <span className="font-medium text-lg text-neutral-1000">Nome do link</span>
+                  return (
+                    <div key={link.id} className="border border-neutral-100 rounded-xl p-4 flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Checkbox.Root
+                            className="w-5 h-5 border-2 border-neutral-300 rounded-md bg-white flex items-center justify-center data-[state=checked]:bg-zhex-base-500 data-[state=checked]:border-zhex-base-500 transition-colors"
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              const currentIds = watch('paymentLinkIds')
+                              if (checked) {
+                                setValue('paymentLinkIds', [...currentIds, link.id])
+                              } else {
+                                setValue('paymentLinkIds', currentIds.filter(id => id !== link.id))
+                              }
+                            }}
+                          >
+                            <Checkbox.Indicator>
+                              <CheckIcon size={14} className="text-white" />
+                            </Checkbox.Indicator>
+                          </Checkbox.Root>
+                          <span className="font-medium text-lg text-neutral-1000">{link.name}</span>
+                        </div>
+                        <div className="text-lg font-semibold text-neutral-500">
+                          {formatCurrency(link.price.baseAmount)}
+                        </div>
+                      </div>
+                      <div className="text-base text-neutral-400 mt-2">
+                        <div className="flex items-center justify-between gap-4 mt-4">
+                          <span className="text-base">Taxas: <span className="text-red-500">R$ 2,49</span></span>
+                          <span className="text-base">Você recebe: <span className="text-green-500">{formatCurrency(netAmount)}</span></span>
+                          <span className="text-base">Afiliado recebe: <span className="text-neutral-1000 font-semibold">{formatCurrency(commissionAmount)}</span></span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-neutral-500">
-                      R${' '}
-                      <span className="font-semibold text-lg text-neutral-1000">30,00</span>
-                    </div>
-                  </div>
-                  <div className="text-base text-neutral-400 mt-2">
-                    <p>https://designdodiadia.com.br/produto 1</p>
-                    <div className="flex items-center justify-between gap-4 mt-4">
-                      <span className="text-base">Taxas: <span className="text-red-500">R$ 2,49</span></span>
-                      <span className="text-base">Você recebe: <span className="text-green-500">R$ 12,49</span></span>
-                      <span className="text-base">Afiliado recebe: <span className="text-neutral-1000 font-semibold">R$ 14,00</span></span>
-                    </div>
-                  </div>
-                </div>
+                  )
+                })}
               </div>
+
+              {
+                errors.paymentLinkIds && (
+                  <p className="text-sm text-red-secondary-500">
+                    {errors.paymentLinkIds.message}
+                  </p>
+                )
+              }
             </div>
 
             {/* Suporte para afiliado */}
@@ -251,7 +250,7 @@ export function ProductAffiliates() {
                   Suporte para afiliado
                 </h3>
                 <p className="text-sm text-neutral-500">
-                  Você pode criar uma assinatura com um ou mais planos. Essas opções estarão disponíveis para o comprador no Checkout.
+                  Configure as informações de suporte que serão exibidas para os afiliados.
                 </p>
               </div>
 
@@ -259,19 +258,19 @@ export function ProductAffiliates() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-neutral-700">Nome:</label>
                   <TextField
-                    {...register('affiliateName')}
+                    {...form.register('supportName')}
                     placeholder="Digite o nome"
-                    error={errors.affiliateName?.message}
+                    error={errors.supportName?.message}
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-neutral-700">E-mail:</label>
                   <TextField
-                    {...register('affiliateEmail')}
+                    {...form.register('supportEmail')}
                     placeholder="nome@suporte.com"
                     type="email"
-                    error={errors.affiliateEmail?.message}
+                    error={errors.supportEmail?.message}
                   />
                 </div>
 
@@ -283,10 +282,10 @@ export function ProductAffiliates() {
                       <span className="text-sm text-neutral-500">+55</span>
                     </div>
                     <TextField
-                      {...register('affiliatePhone')}
+                      {...form.register('supportPhone')}
                       placeholder="(00) 00000-0000"
                       className="flex-1"
-                      error={errors.affiliatePhone?.message}
+                      error={errors.supportPhone?.message}
                     />
                   </div>
                 </div>
@@ -294,9 +293,10 @@ export function ProductAffiliates() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-neutral-700">Página de vendas:</label>
                   <TextField
-                    {...register('salesPage')}
-                    placeholder="🔗 https://exemplo.com"
-                    error={errors.salesPage?.message}
+                    {...form.register('supportUrl')}
+                    leftIcon={<LinkIcon size={18} />}
+                    placeholder="https://exemplo.com"
+                    error={errors.supportUrl?.message}
                   />
                 </div>
               </div>
@@ -309,13 +309,25 @@ export function ProductAffiliates() {
                   Regra de afiliação:
                 </h3>
                 <span className="text-sm text-neutral-400">
-                  {editorRef.current?.innerText.length || 0}/1000
+                  {watch('affiliationRules')?.length || 0}/1000
                 </span>
               </div>
 
               <div className="relative">
-                <div className="border border-neutral-100 rounded-xl">
-                  <div className="flex p-2 px-5 gap-4 bg-neutral-50 border-b border-neutral-100">
+                <div className={
+                  clsx(
+                    'border border-neutral-100 rounded-xl',
+                    errors.affiliationRules && 'border-red-secondary-500',
+                  )
+                }
+                >
+                  <div className={
+                    clsx(
+                      'flex p-2 px-5 gap-4 bg-neutral-50 rounded-t-xl border-b border-neutral-100',
+                      errors.affiliationRules && 'border-red-secondary-500',
+                    )
+                  }
+                  >
                     <button
                       type="button"
                       onClick={() => formatText('bold')}
@@ -358,74 +370,63 @@ export function ProductAffiliates() {
                     </button>
                   </div>
 
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    className="w-full h-32 p-4 bg-transparent text-neutral-1000 placeholder:text-neutral-400 focus:ring-2 focus:ring-zhex-base-500 outline-none resize-none border-0 min-h-[128px] rounded-b-xl transition-all duration-200"
-                    onInput={(e) => {
-                      const target = e.target as HTMLDivElement
-                      setValue('affiliateRule', target.innerText)
-                    }}
-                    onKeyUp={() => {
-                      setIsBold(document.queryCommandState('bold'))
-                      setIsItalic(document.queryCommandState('italic'))
-                      setIsUnderline(document.queryCommandState('underline'))
-                    }}
-                    onMouseUp={() => {
-                      setIsBold(document.queryCommandState('bold'))
-                      setIsItalic(document.queryCommandState('italic'))
-                      setIsUnderline(document.queryCommandState('underline'))
-                    }}
+                  <Controller
+                    name="affiliationRules"
+                    control={control}
+                    render={({ field }) => (
+                      <div
+                        ref={editorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        className="w-full h-32 p-4 bg-transparent text-neutral-1000 placeholder:text-neutral-400 focus:ring-2 focus:ring-zhex-base-500 outline-none resize-none border-0 min-h-[128px] rounded-b-xl transition-all duration-200"
+                        onInput={(e) => {
+                          const target = e.target as HTMLDivElement
+                          field.onChange(target.innerText)
+                        }}
+                        onKeyUp={() => {
+                          setIsBold(document.queryCommandState('bold'))
+                          setIsItalic(document.queryCommandState('italic'))
+                          setIsUnderline(document.queryCommandState('underline'))
+                        }}
+                        onMouseUp={() => {
+                          setIsBold(document.queryCommandState('bold'))
+                          setIsItalic(document.queryCommandState('italic'))
+                          setIsUnderline(document.queryCommandState('underline'))
+                        }}
+                        onBlur={() => {
+                          const target = editorRef.current
+                          if (target) {
+                            field.onChange(target.innerText)
+                          }
+                        }}
+                      />
+                    )}
                   />
                 </div>
               </div>
+
+              {
+                errors.affiliationRules && (
+                  <p className="text-sm text-red-secondary-500">
+                    {errors.affiliationRules.message}
+                  </p>
+                )
+              }
             </div>
           </div>
         )}
       </div>
 
       {/* Modal de Confirmação */}
-      <Dialog.Root open={showDeactivateModal} onOpenChange={setShowDeactivateModal}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl p-6 w-full max-w-md z-50 shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <Dialog.Title className="text-lg font-semibold text-neutral-1000">
-                Desativar afiliação
-              </Dialog.Title>
-              <Dialog.Close asChild>
-                <button className="text-neutral-500 hover:text-red-secondary-500 transition-colors">
-                  <XCircleIcon size={20} weight="fill" />
-                </button>
-              </Dialog.Close>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                Ao desativar a afiliação do produto, seus afiliados não poderão efetuar novas vendas e serão avisados disso. O link de convite será desativado.
-              </p>
-              <p className="text-sm text-neutral-1000 font-medium leading-relaxed">
-                Caso deseja continuar recebendo comissões por vendas através de afiliados, não desative a afiliação
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <Dialog.Close asChild>
-                <Button variant="ghost" size="medium" className="w-1/2">
-                  Cancelar
-                </Button>
-              </Dialog.Close>
-              <button
-                onClick={handleDeactivate}
-                className="flex-1 w-full px-4 py-2 bg-red-secondary-500 text-white rounded-lg hover:bg-red-secondary-600 transition-colors cursor-pointer"
-              >
-                Desativar
-              </button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+      <ConfirmationModal
+        open={showDeactivateModal}
+        onOpenChange={setShowDeactivateModal}
+        onConfirm={handleDeactivate}
+        title="Desativar afiliação"
+        description="Ao desativar a afiliação do produto, seus afiliados não poderão efetuar novas vendas e serão avisados disso. O link de convite será desativado."
+        confirmText="Desativar"
+        variant="danger"
+      />
     </>
   )
 }

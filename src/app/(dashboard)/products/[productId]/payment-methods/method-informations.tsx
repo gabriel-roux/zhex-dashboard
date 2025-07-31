@@ -2,14 +2,37 @@ import * as Dialog from '@radix-ui/react-dialog'
 import Image from 'next/image'
 import { Button } from '@/components/button'
 import { CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
-import ApplePayLogo from '@/assets/images/methods/apple-pay.png'
+import { PaymentMethod } from '@/@types/payment-methods'
 
 interface MethodInformationsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  method: PaymentMethod | null
+  onActivate: () => Promise<void>
+  onDeactivate: () => Promise<void>
+  isActive: boolean
 }
 
-export function MethodInformationsModal({ open, onOpenChange }: MethodInformationsModalProps) {
+export function MethodInformationsModal({
+  open,
+  onOpenChange,
+  method,
+  onActivate,
+  onDeactivate,
+  isActive,
+}: MethodInformationsModalProps) {
+  if (!method) return null
+
+  const typeLabel = method.type === 'DIGITAL_WALLET'
+    ? 'Carteira digital'
+    : method.type === 'CREDIT_CARD'
+      ? 'Cartão de crédito'
+      : method.type
+
+  const confirmationLabel = method.requiresConfirmation
+    ? 'Requer confirmação'
+    : 'Imediato'
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -38,24 +61,46 @@ export function MethodInformationsModal({ open, onOpenChange }: MethodInformatio
               </Dialog.Close>
             </div>
 
-            {/* Apple Pay Section */}
+            {/* Payment Method Section */}
             <div className="px-8 py-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-white border border-neutral-200 flex items-center justify-center">
-                    <Image src={ApplePayLogo} alt="Apple Pay" width={32} height={32} quality={100} />
+                    {method.iconUrl
+                      ? (
+                        <Image
+                          src={method.iconUrl}
+                          alt={method.name}
+                          width={32}
+                          height={32}
+                          quality={100}
+                        />
+                        )
+                      : (
+                        <span className="text-sm font-medium text-neutral-500">
+                          {method.name.charAt(0)}
+                        </span>
+                        )}
                   </div>
                   <h3 className="text-lg font-araboto font-medium text-neutral-1000">
-                    Apple Pay
+                    {method.name}
                   </h3>
                 </div>
-                <Button variant="ghost" size="small">
-                  Ativar
+                <Button
+                  variant="ghost"
+                  size="small"
+                  onClick={isActive
+                    ? onDeactivate
+                    : onActivate}
+                >
+                  {isActive
+                    ? 'Desativar'
+                    : 'Ativar'}
                 </Button>
               </div>
 
               <p className="text-neutral-600 text-sm leading-relaxed">
-                Pague com segurança e rapidez usando Apple Pay, o sistema de pagamento da Apple que permite realizar compras com apenas um toque direto do seu iPhone, Apple Watch, iPad ou Mac.
+                {method.description || `${method.name} é um método de pagamento seguro e confiável para suas transações.`}
               </p>
             </div>
 
@@ -71,51 +116,92 @@ export function MethodInformationsModal({ open, onOpenChange }: MethodInformatio
               </div>
 
               <p className="text-neutral-1000 text-sm leading-relaxed mb-6">
-                O Apple Pay permite que os clientes realizem pagamentos no seu aplicativo ou site usando cartões de crédito ou débito salvos na Carteira Apple, disponíveis em dispositivos compatíveis como iPhone, Apple Watch, iPad ou Mac. Para ativar o Apple Pay como forma de pagamento utilizando a Zhex, revise os{' '}
-                <a href="#" className="text-zhex-base-500 font-medium underline">
-                  Termos de Serviço da API Apple Pay
-                </a>
-                {' '}e a{' '}
-                <a href="#" className="text-zhex-base-500 font-medium underline">
-                  Política de Privacidade da Apple
-                </a>
-                . Esses documentos explicam quais dados são utilizados e como a Apple protege as transações.
+                O {method.name} permite que os clientes realizem pagamentos de forma segura e rápida.
+                Este método oferece uma experiência de pagamento otimizada com suporte a múltiplas moedas
+                e regiões. Para mais informações sobre termos de serviço e políticas de privacidade,
+                consulte a documentação oficial.
               </p>
 
               {/* Details Table */}
               <div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-neutral-1000 text-sm font-bold font-araboto">Tipo:</span>
-                  <span className="text-neutral-1000 text-sm font-medium">Carteiras</span>
+                  <span className="text-neutral-1000 text-sm font-medium">{typeLabel}</span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
                   <span className="text-neutral-1000 text-sm font-bold font-araboto">Confirmação:</span>
-                  <span className="text-neutral-1000 text-sm font-medium">Imediato</span>
+                  <span className="text-neutral-1000 text-sm font-medium">{confirmationLabel}</span>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
                   <span className="text-neutral-1000 text-sm font-bold font-araboto">Pagamentos recorrentes:</span>
                   <div className="flex items-center gap-2">
-                    <CheckCircleIcon size={18} className="text-green-secondary-500" weight="bold" />
-                    <span className="text-neutral-1000 text-sm font-medium">Sim</span>
+                    {method.supportRecurring
+                      ? (
+                        <CheckCircleIcon size={18} className="text-green-secondary-500" weight="bold" />
+                        )
+                      : (
+                        <XCircleIcon size={18} className="text-red-500" weight="bold" />
+                        )}
+                    <span className="text-neutral-1000 text-sm font-medium">
+                      {method.supportRecurring
+                        ? 'Sim'
+                        : 'Não'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Suporte a reembolsos:</span>
+                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Suporte a parcelamento:</span>
                   <div className="flex items-center gap-2">
-                    <CheckCircleIcon size={18} className="text-green-secondary-500" weight="bold" />
-                    <span className="text-neutral-1000 text-sm font-medium">Sim</span>
+                    {method.supportInstallments
+                      ? (
+                        <CheckCircleIcon size={18} className="text-green-secondary-500" weight="bold" />
+                        )
+                      : (
+                        <XCircleIcon size={18} className="text-red-500" weight="bold" />
+                        )}
+                    <span className="text-neutral-1000 text-sm font-medium">
+                      {method.supportInstallments
+                        ? 'Sim'
+                        : 'Não'}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Suporte a contestações:</span>
-                  <div className="flex items-center gap-2">
-                    <CheckCircleIcon size={18} className="text-green-secondary-500" weight="bold" />
-                    <span className="text-neutral-1000 text-sm font-medium">Sim</span>
+                {method.supportInstallments && method.maxInstallments && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-neutral-1000 text-sm font-bold font-araboto">Máximo de parcelas:</span>
+                    <span className="text-neutral-1000 text-sm font-medium">{method.maxInstallments}x</span>
                   </div>
+                )}
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Taxa de processamento:</span>
+                  <span className="text-neutral-1000 text-sm font-medium">
+                    {method.processingFeePercentage}% + ${(method.processingFeeFixed || 0) / 100}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Moedas suportadas:</span>
+                  <span className="text-neutral-1000 text-sm font-medium">
+                    {method.currencies.slice(0, 3).join(', ')}
+                    {method.currencies.length > 3 && '...'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-neutral-1000 text-sm font-bold font-araboto">Regiões:</span>
+                  <span className="text-neutral-1000 text-sm font-medium">
+                    {method.supportedRegions.length > 10
+                      ? 'Todas regiões'
+                      : method.supportedRegions.slice(0, 3).join(', ') +
+                     (method.supportedRegions.length > 3
+                       ? '...'
+                       : '')}
+                  </span>
                 </div>
               </div>
             </div>

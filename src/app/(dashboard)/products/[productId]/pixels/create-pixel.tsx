@@ -6,30 +6,39 @@ import { XCircleIcon, FacebookLogoIcon, GoogleLogoIcon } from '@phosphor-icons/r
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Switch } from '@/components/switch'
+import { useApi } from '@/hooks/useApi'
+import { Pixel } from '@/@types/pixel'
 
 // Schema de validação
-const createPixelSchema = z.object({
+const pixelSchema = z.object({
   name: z.string().min(1, 'Nome do pixel é obrigatório'),
-  pixelType: z.enum(['facebook', 'google']),
+  pixelType: z.enum(['FACEBOOK', 'GOOGLE_ANALYTICS', 'GOOGLE_TAG_MANAGER', 'TIKTOK']),
   pixelId: z.string().min(1, 'ID do pixel é obrigatório'),
-  // Facebook fields
   useConversionsApi: z.boolean().optional(),
   accessToken: z.string().optional(),
-  // Google fields
-  conversionLabel: z.string().optional(),
+  trackPageView: z.boolean().optional(),
+  trackAddToCart: z.boolean().optional(),
+  trackInitiateCheckout: z.boolean().optional(),
+  trackPurchase: z.boolean().optional(),
+  trackAddPaymentInfo: z.boolean().optional(),
 })
 
-type CreatePixelFormData = z.infer<typeof createPixelSchema>
+type PixelFormData = z.infer<typeof pixelSchema>
 
-interface CreatePixelModalProps {
+interface PixelModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  productId: string
+  onPixelCreated: () => void
+  mode: 'create' | 'edit'
+  pixelToEdit?: Pixel | null
 }
 
-export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) {
-  const [pixelType, setPixelType] = useState<'facebook' | 'google'>('facebook')
+export function PixelModal({ open, onOpenChange, productId, onPixelCreated, mode, pixelToEdit }: PixelModalProps) {
+  const [pixelType, setPixelType] = useState<'FACEBOOK' | 'GOOGLE_ANALYTICS' | 'GOOGLE_TAG_MANAGER' | 'TIKTOK'>('FACEBOOK')
+  const [error, setError] = useState<string | null>(null)
 
   // Facebook states
   const [useConversionsApi, setUseConversionsApi] = useState(false)
@@ -37,9 +46,8 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
     pageView: true,
     addToCart: true,
     initiateCheckout: true,
-    initiateCheckoutWithData: true,
-    addPaymentInfo: true,
     purchase: true,
+    addPaymentInfo: false,
   })
 
   // Google states
@@ -48,28 +56,194 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
     purchase: false,
   })
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<CreatePixelFormData>({
-    resolver: zodResolver(createPixelSchema),
+  const { post, put } = useApi()
+
+  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm<PixelFormData>({
+    resolver: zodResolver(pixelSchema),
     defaultValues: {
-      name: '',
-      pixelType: 'facebook',
-      pixelId: '',
-      useConversionsApi: false,
-      accessToken: '',
-      conversionLabel: '',
+      name: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.name
+        : '',
+      pixelType: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.pixelType
+        : 'FACEBOOK',
+      pixelId: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.pixelId
+        : '',
+      useConversionsApi: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.useConversionsApi
+        : false,
+      accessToken: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.accessToken || ''
+        : '',
+      trackPageView: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.trackPageView
+        : true,
+      trackAddToCart: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.trackAddToCart
+        : true,
+      trackInitiateCheckout: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.trackInitiateCheckout
+        : true,
+      trackPurchase: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.trackPurchase
+        : true,
+      trackAddPaymentInfo: mode === 'edit' && pixelToEdit
+        ? pixelToEdit.trackAddPaymentInfo
+        : false,
     },
   })
 
-  const onSubmit = (data: CreatePixelFormData) => {
-    console.log('Form data:', data)
-    console.log('Events:', pixelType === 'facebook'
-      ? events
-      : googleEvents)
-    // TODO: Implementar criação do pixel
-    onOpenChange(false)
+  // Resetar formulário quando modal abre/fecha ou muda o modo
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.name
+          : '',
+        pixelType: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.pixelType
+          : 'FACEBOOK',
+        pixelId: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.pixelId
+          : '',
+        useConversionsApi: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.useConversionsApi
+          : false,
+        accessToken: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.accessToken || ''
+          : '',
+        trackPageView: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackPageView
+          : true,
+        trackAddToCart: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackAddToCart
+          : true,
+        trackInitiateCheckout: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackInitiateCheckout
+          : true,
+        trackPurchase: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackPurchase
+          : true,
+        trackAddPaymentInfo: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackAddPaymentInfo
+          : false,
+      })
+      setPixelType(mode === 'edit' && pixelToEdit
+        ? pixelToEdit.pixelType
+        : 'FACEBOOK')
+      setUseConversionsApi(mode === 'edit' && pixelToEdit
+        ? pixelToEdit.useConversionsApi
+        : false)
+      setEvents({
+        pageView: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackPageView
+          : true,
+        addToCart: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackAddToCart
+          : true,
+        initiateCheckout: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackInitiateCheckout
+          : true,
+        purchase: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackPurchase
+          : true,
+        addPaymentInfo: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackAddPaymentInfo
+          : false,
+      })
+      setGoogleEvents({
+        initiateCheckout: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackInitiateCheckout
+          : false,
+        purchase: mode === 'edit' && pixelToEdit
+          ? pixelToEdit.trackPurchase
+          : false,
+      })
+    }
+  }, [open, mode, pixelToEdit, reset])
+
+  const onSubmit = async (data: PixelFormData) => {
+    try {
+      if (mode === 'create') {
+        const response = await post<{ success: boolean; message: string }>(`/products/${productId}/pixels`, {
+          name: data.name,
+          pixelType: data.pixelType,
+          pixelId: data.pixelId,
+          useConversionsApi: data.pixelType === 'FACEBOOK'
+            ? useConversionsApi
+            : false,
+          accessToken: data.pixelType === 'FACEBOOK' && useConversionsApi
+            ? data.accessToken
+            : undefined,
+          trackPageView: data.pixelType === 'FACEBOOK'
+            ? events.pageView
+            : true,
+          trackAddToCart: data.pixelType === 'FACEBOOK'
+            ? events.addToCart
+            : true,
+          trackInitiateCheckout: data.pixelType === 'FACEBOOK'
+            ? events.initiateCheckout
+            : googleEvents.initiateCheckout,
+          trackPurchase: data.pixelType === 'FACEBOOK'
+            ? events.purchase
+            : googleEvents.purchase,
+          trackAddPaymentInfo: data.pixelType === 'FACEBOOK'
+            ? events.addPaymentInfo
+            : false,
+        })
+
+        if (response.data.success) {
+          onPixelCreated()
+          onOpenChange(false)
+          setError(null)
+        } else {
+          setError(response.data.message)
+        }
+      } else if (mode === 'edit' && pixelToEdit) {
+        const response = await put<{ success: boolean; message: string }>(`/products/${productId}/pixels/${pixelToEdit.id}`, {
+          name: data.name,
+          pixelType: data.pixelType,
+          pixelId: data.pixelId,
+          useConversionsApi: data.pixelType === 'FACEBOOK'
+            ? useConversionsApi
+            : false,
+          accessToken: data.pixelType === 'FACEBOOK' && useConversionsApi
+            ? data.accessToken
+            : undefined,
+          trackPageView: data.pixelType === 'FACEBOOK'
+            ? events.pageView
+            : true,
+          trackAddToCart: data.pixelType === 'FACEBOOK'
+            ? events.addToCart
+            : true,
+          trackInitiateCheckout: data.pixelType === 'FACEBOOK'
+            ? events.initiateCheckout
+            : googleEvents.initiateCheckout,
+          trackPurchase: data.pixelType === 'FACEBOOK'
+            ? events.purchase
+            : googleEvents.purchase,
+          trackAddPaymentInfo: data.pixelType === 'FACEBOOK'
+            ? events.addPaymentInfo
+            : false,
+        })
+
+        if (response.data.success) {
+          onPixelCreated()
+          onOpenChange(false)
+          setError(null)
+        } else {
+          setError(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error(`Erro ao ${mode === 'create'
+? 'criar'
+: 'editar'} pixel:`, error)
+    }
   }
 
-  const handlePixelTypeChange = (type: 'facebook' | 'google') => {
+  const handlePixelTypeChange = (type: 'FACEBOOK' | 'GOOGLE_ANALYTICS' | 'GOOGLE_TAG_MANAGER' | 'TIKTOK') => {
     setPixelType(type)
     setValue('pixelType', type)
   }
@@ -89,7 +263,15 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={open} onOpenChange={
+      (open) => {
+        onOpenChange(open)
+        reset()
+        setError(null)
+      }
+    }
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-neutral-1000/50 backdrop-blur-sm z-50" />
         <Dialog.Content
@@ -103,7 +285,9 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-neutral-200 flex-shrink-0">
               <Dialog.Title className="text-lg font-araboto font-medium text-neutral-1000">
-                Cadastrar novo pixel
+                {mode === 'create'
+                  ? 'Cadastrar novo pixel'
+                  : 'Editar pixel'}
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button
@@ -141,15 +325,15 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                       className="w-full justify-center items-center"
                       label="Facebook"
                       icon={FacebookLogoIcon}
-                      selected={pixelType === 'facebook'}
-                      onSelect={() => handlePixelTypeChange('facebook')}
+                      selected={pixelType === 'FACEBOOK'}
+                      onSelect={() => handlePixelTypeChange('FACEBOOK')}
                     />
                     <Option
                       label="Google"
                       className="w-full justify-center items-center"
                       icon={GoogleLogoIcon}
-                      selected={pixelType === 'google'}
-                      onSelect={() => handlePixelTypeChange('google')}
+                      selected={pixelType === 'GOOGLE_ANALYTICS' || pixelType === 'GOOGLE_TAG_MANAGER'}
+                      onSelect={() => handlePixelTypeChange('GOOGLE_ANALYTICS')}
                     />
                   </div>
                 </div>
@@ -161,7 +345,7 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                   </label>
                   <TextField
                     {...register('pixelId')}
-                    placeholder={pixelType === 'facebook'
+                    placeholder={pixelType === 'FACEBOOK'
                       ? 'FB_123456789012345'
                       : 'GA_G-XXXXXXXXXX'}
                     error={errors.pixelId?.message}
@@ -169,7 +353,7 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                 </div>
 
                 {/* Facebook specific fields */}
-                {pixelType === 'facebook' && (
+                {pixelType === 'FACEBOOK' && (
                   <>
                     {/* API de conversões */}
                     <div className="flex items-center justify-between">
@@ -230,13 +414,6 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-neutral-600">Enviar 'InitiateCheckout' somente após o usuário informar os dados pessoais?</span>
-                          <Switch
-                            active={events.initiateCheckoutWithData}
-                            setValue={() => toggleEvent('initiateCheckoutWithData')}
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
                           <span className="text-neutral-600">Enviar 'AddPaymentInfo'?</span>
                           <Switch
                             active={events.addPaymentInfo}
@@ -256,20 +433,8 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                 )}
 
                 {/* Google specific fields */}
-                {pixelType === 'google' && (
+                {(pixelType === 'GOOGLE_ANALYTICS' || pixelType === 'GOOGLE_TAG_MANAGER') && (
                   <>
-                    {/* Label de conversão */}
-                    <div>
-                      <label className="text-neutral-1000 font-medium font-araboto text-base mb-2 block">
-                        Label de conversão:
-                      </label>
-                      <TextField
-                        {...register('conversionLabel')}
-                        placeholder="Digite o label de conversão"
-                        error={errors.conversionLabel?.message}
-                      />
-                    </div>
-
                     {/* Eventos Google */}
                     <div>
                       <label className="text-neutral-1000 font-medium font-araboto text-base mb-4 block">
@@ -294,9 +459,15 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                     </div>
                   </>
                 )}
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Botão de criar - Fixo no final */}
+              {/* Botão de criar/editar - Fixo no final */}
               <div className="px-8 py-6 flex-shrink-0">
                 <Button
                   type="submit"
@@ -304,7 +475,9 @@ export function CreatePixelModal({ open, onOpenChange }: CreatePixelModalProps) 
                   size="full"
                   className="w-full"
                 >
-                  Cadastrar pixel
+                  {mode === 'create'
+                    ? 'Cadastrar pixel'
+                    : 'Salvar alterações'}
                 </Button>
               </div>
             </form>

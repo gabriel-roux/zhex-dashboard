@@ -6,5 +6,6 @@ export interface UserProps {
   phone?: string;
   isActive?: boolean;
   emailVerified?: boolean;
-  waitlistId?: string;
+  avatarUrl?: string;
+  companyId?: string;
 }

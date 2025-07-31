@@ -11,3 +11,20 @@ body {
   background: var(--neutral-0);
   font-family: Araboto, Inter, sans-serif;
 }
+
+/* Animação de shimmer para skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Classe utilitária para skeleton */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #eae9f0 25%, #dddee7 50%, #eae9f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}

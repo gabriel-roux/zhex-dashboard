@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import * as Slider from '@radix-ui/react-slider'
-import { ResponsiveContainer, AreaChart, Area, Tooltip } from 'recharts'
+import { ResponsiveContainer, AreaChart, Area } from 'recharts'
 import { motion } from 'framer-motion'
+import { RiskProfileData, OnboardingStatus } from '@/@types/onboarding'
+import { Button } from '@/components/button'
 
 type RiskLevel = 1 | 2 | 3
 
@@ -47,7 +49,19 @@ const RISK_CONFIG: Record<
   },
 }
 
-export function OperationRisk() {
+interface OperationRiskProps {
+  onSubmit: (data: RiskProfileData) => Promise<OnboardingStatus>
+  isLoading?: boolean
+  error?: string | null
+  setCurrentStep: (step: number) => void
+}
+
+export function OperationRisk({
+  onSubmit,
+  isLoading = false,
+  error,
+  setCurrentStep,
+}: OperationRiskProps) {
   const [level, setLevel] = useState<RiskLevel>(1)
   const [sliderValue, setSliderValue] = useState<number>(
     RISK_CONFIG[1].knobPosition,
@@ -66,6 +80,30 @@ export function OperationRisk() {
     if (v < 33) setLevel(1)
     else if (v < 66) setLevel(2)
     else setLevel(3)
+  }
+
+  const handleSubmit = async () => {
+    try {
+      // Mapear nível para o formato da API
+      const riskLevelMap: Record<RiskLevel, RiskProfileData['riskLevel']> = {
+        1: 'CONSERVATIVE',
+        2: 'MODERATE',
+        3: 'AGGRESSIVE',
+      }
+
+      const riskData: RiskProfileData = {
+        riskLevel: riskLevelMap[level],
+      }
+
+      const result = await onSubmit(riskData) as { nextStep?: { step: number; title: string; description: string } }
+
+      if (result?.nextStep) {
+        const nextStepIndex = result.nextStep.step - 1
+        setCurrentStep(nextStepIndex)
+      }
+    } catch (error) {
+      console.error('Erro ao enviar perfil de risco:', error)
+    }
   }
 
   return (
@@ -92,7 +130,13 @@ export function OperationRisk() {
         <ResponsiveContainer width="100%" height={90} className="mt-4">
           <AreaChart
             data={Array.from(
-              { length: level === 1 ? 5 : level === 2 ? 10 : 15 },
+              {
+                length: level === 1
+                  ? 5
+                  : level === 2
+                    ? 10
+                    : 15,
+              },
               (_, i) => ({
                 pv:
                   level === 1
@@ -172,6 +216,26 @@ export function OperationRisk() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
+      {/* Buttons */}
+      <div className="flex items-center gap-4 mt-8">
+        <Button
+          size="large"
+          loading={isLoading}
+          onClick={handleSubmit}
+          variant="primary"
+          className="w-[222px]"
+        >
+          Continuar
+        </Button>
       </div>
     </div>
   )

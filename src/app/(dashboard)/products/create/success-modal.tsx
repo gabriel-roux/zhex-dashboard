@@ -4,8 +4,9 @@ import { Button } from '@/components/button'
 import * as Dialog from '@radix-ui/react-dialog'
 import Lottie from 'lottie-react'
 import successAnimationData from '@/assets/animations/success.json'
+import Link from 'next/link'
 
-export function SuccessModal() {
+export function SuccessModal({ productId }: { productId?: string }) {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className="fixed inset-0 bg-neutral-1000/40 z-50" />
@@ -24,11 +25,11 @@ export function SuccessModal() {
           <Dialog.Description className="text-neutral-700 text-center">
             Agora é hora de configurar os detalhes para garantir uma boa performance de vendas.
           </Dialog.Description>
-          <Dialog.Close asChild>
+          <Link href={`/products/${productId}`}>
             <Button variant="primary" className="mt-5" size="full">
-              OK
+              Ir para o produto
             </Button>
-          </Dialog.Close>
+          </Link>
         </div>
       </Dialog.Content>
     </Dialog.Portal>

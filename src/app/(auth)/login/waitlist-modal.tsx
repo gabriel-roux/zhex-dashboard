@@ -4,6 +4,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { InfoIcon, XCircleIcon } from '@phosphor-icons/react'
 import {
+  MaskedTextField,
   SelectField,
   Textarea,
   TextField,
@@ -174,9 +175,11 @@ export const WaitlistModal = () => {
                     <label className="text-neutral-950 font-araboto font-medium">
                       Telefone <span className="text-red-secondary-500">*</span>
                     </label>
-                    <TextField
-                      placeholder="(00) 00000-0000"
-                      {...register('phone', { required: true })}
+                    <MaskedTextField
+                      mask="(00) 00000-0000"
+                      name="phone"
+                      control={control}
+                      placeholder="Digite seu telefone"
                       error={errors.phone && 'Campo obrigatório'}
                     />
                   </div>

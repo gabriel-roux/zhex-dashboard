@@ -12,56 +12,80 @@ import {
   PlusCircleIcon,
 } from '@phosphor-icons/react'
 import { useState } from 'react'
-import Link from 'next/link'
 import { Button } from '../button'
-
-// Mock user accounts data
-const userAccounts = [
-  {
-    id: '1',
-    name: 'Rich Brown',
-    email: 'richbrown@mail.com',
-    avatar: '/avatars/rich-1.jpg',
-    isActive: true,
-  },
-  {
-    id: '2',
-    name: 'Rich Brown',
-    email: 'richardB324@mail.com',
-    avatar: '/avatars/rich-2.jpg',
-    isActive: false,
-  },
-]
+import { useAuth } from '@/contexts/auth/context'
+import { CompanyProps } from '@/@types/company'
+import { useApi } from '@/hooks/useApi'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 
 interface ProfileMenuProps {
   children: ReactNode
+  companies: CompanyProps[]
+  desactived?: boolean
 }
 
-export function ProfileMenu({ children }: ProfileMenuProps) {
+export function ProfileMenu({ children, companies, desactived = false }: ProfileMenuProps) {
   const [darkMode, setDarkMode] = useState(false)
-  const [activeAccountId, setActiveAccountId] = useState('1')
+  const [switchingCompany, setSwitchingCompany] = useState(false)
+  const { user, switchCompany } = useAuth()
+  const router = useRouter()
+
+  const api = useApi()
   const [open, setOpen] = useState(false)
 
-  const handleAccountSwitch = (accountId: string) => {
-    setActiveAccountId(accountId)
-    // TODO: Implementar lógica de troca de conta
-  }
+  const { signOut } = useAuth()
 
-  const handleManageAccount = () => {
-    // TODO: Implementar gerenciamento de conta
-    console.log('Manage account')
+  const activeAccountId = user?.companyId || ''
+
+  const handleAccountSwitch = async (accountId: string) => {
+    if (accountId === user?.companyId) return // Já está na empresa selecionada
+
+    try {
+      setSwitchingCompany(true)
+      const response = await switchCompany(accountId)
+
+      if (response.success) {
+        // Fechar o menu
+        setOpen(false)
+        // Recarregar a página para aplicar as mudanças
+        window.location.reload()
+      } else {
+        console.error('Erro ao trocar empresa:', response.message)
+      }
+    } catch (error) {
+      console.error('Erro ao trocar empresa:', error)
+    } finally {
+      setSwitchingCompany(false)
+    }
   }
 
   const handleLogout = () => {
-    // TODO: Implementar logout
-    console.log('Logout')
+    signOut()
+    window.location.href = '/login'
+  }
+
+  const handleAddCompany = async () => {
+    const response = await api.post('/onboarding/create-company-token')
+    const { success, onboardingToken } = response.data as { success: boolean, onboardingToken: string }
+
+    if (success) {
+      router.push(`/onboarding?token=${onboardingToken}`)
+    }
   }
 
   return (
     <DropdownMenu.Root open={open} onOpenChange={setOpen}>
-      <DropdownMenu.Trigger asChild>
-        {children}
-      </DropdownMenu.Trigger>
+      {
+        desactived
+          ? children
+          : (
+            <DropdownMenu.Trigger asChild>
+              {children}
+            </DropdownMenu.Trigger>
+            )
+      }
 
       <DropdownMenu.Portal>
         <AnimatePresence>
@@ -108,14 +132,14 @@ export function ProfileMenu({ children }: ProfileMenuProps) {
                 {/* Accounts Section */}
                 <div className="p-3">
                   <div className="space-y-1">
-                    {userAccounts.map((account) => (
+                    {companies.map((company) => (
                       <button
-                        key={account.id}
+                        key={company.id}
                         type="button"
-                        onClick={() => handleAccountSwitch(account.id)}
+                        onClick={() => handleAccountSwitch(company.id)}
                         className={`
                           w-full flex items-center gap-3 p-2.5 rounded-lg transition-all duration-150 group
-                          ${account.id === activeAccountId
+                          ${company.id === activeAccountId
                             ? 'bg-neutral-50 ring-1 ring-neutral-200'
                             : 'hover:bg-neutral-25'
                           }
@@ -123,10 +147,23 @@ export function ProfileMenu({ children }: ProfileMenuProps) {
                       >
                         {/* Avatar */}
                         <div className="relative">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center text-white font-medium text-sm">
-                            {account.name.split(' ').map(n => n[0]).join('')}
-                          </div>
-                          {account.id === activeAccountId && (
+                          {company.avatarUrl
+                            ? (
+                              <Image
+                                src={company.avatarUrl}
+                                alt={company.legalName}
+                                width={36}
+                                height={36}
+                                className="rounded-full w-9 h-9 object-cover"
+                              />
+                              )
+                            : (
+                              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center text-white font-medium text-sm">
+                                {company.legalName.split(' ').map(n => n[0]).join('')}
+                              </div>
+                              )}
+
+                          {company.id === activeAccountId && (
                             <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                               <CheckIcon size={8} className="text-white" weight="bold" />
                             </div>
@@ -136,34 +173,36 @@ export function ProfileMenu({ children }: ProfileMenuProps) {
                         {/* Account Info */}
                         <div className="flex-1 text-left">
                           <div className="font-araboto font-medium text-neutral-800 text-sm">
-                            {account.name}
+                            {company.legalName}
                           </div>
                           <div className="text-neutral-400 text-xs mt-0.5">
-                            {account.email}
+                            {company.document}
                           </div>
                         </div>
 
                         {/* Active Indicator */}
-                        {account.id === activeAccountId && (
+                        {company.id === activeAccountId && (
                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                        )}
+                        {switchingCompany && company.id !== activeAccountId && (
+                          <div className="w-4 h-4 border-2 border-neutral-300 border-t-zhex-base-500 rounded-full animate-spin" />
                         )}
                       </button>
                     ))}
                   </div>
 
                   {/* Add Company Button */}
-                  <Link href="/onboarding">
-                    <Button
-                      variant="ghost"
-                      size="full"
-                      className="flex items-center justify-center gap-2 !py-2.5 mt-2 border-dashed"
-                    >
-                      <PlusCircleIcon size={16} />
-                      <span className="font-araboto text-sm">
-                        Adicionar Empresa
-                      </span>
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="full"
+                    className="flex items-center justify-center gap-2 !py-2.5 mt-2 border-dashed"
+                    onClick={handleAddCompany}
+                  >
+                    <PlusCircleIcon size={16} />
+                    <span className="font-araboto text-sm">
+                      Adicionar Empresa
+                    </span>
+                  </Button>
                 </div>
 
                 {/* Divider */}
@@ -183,16 +222,16 @@ export function ProfileMenu({ children }: ProfileMenuProps) {
                   </div>
 
                   {/* Manage Account */}
-                  <button
-                    type="button"
-                    onClick={handleManageAccount}
+                  <Link
+                    href="/my-account"
+                    onClick={() => setOpen(false)}
                     className="w-full flex items-center gap-3 py-2.5 px-1 rounded-lg hover:bg-neutral-25 transition-colors"
                   >
                     <UserGearIcon size={18} className="text-neutral-500" />
                     <span className="text-neutral-700 font-araboto text-sm">
                       Gerenciar Conta
                     </span>
-                  </button>
+                  </Link>
 
                   {/* Logout */}
                   <button

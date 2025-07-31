@@ -1,3 +1,5 @@
+'use client'
+
 import { SalesAnalysisChart } from '@/components/charts/sales-analysis'
 import { Container } from '@/components/container'
 import {
@@ -6,20 +8,25 @@ import {
   ClockCounterClockwiseIcon,
   TicketIcon,
   TagIcon,
-} from '@phosphor-icons/react/ssr'
+} from '@phosphor-icons/react'
 import { CashFlow } from './widgets/cash-flow'
 import { DragAndDrop } from './widgets/drag-drop-flow'
+import { useAuth } from '@/contexts/auth/context'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 export default function Dashboard() {
+  const { user } = useAuth()
+
   return (
     <>
       <div className="flex flex-col mx-auto px-6 w-full md:max-w-screen-lg 2xl:max-w-screen-xl 3xl:max-w-screen-2xl mt-6">
         <h1 className="text-lg text-neutral-950 font-araboto font-medium">
-          Olá, Filipe!
+          Olá, {user?.firstName}!
         </h1>
 
         <p className="text-neutral-500 text-base font-araboto mb-6">
-          Terça-feira, 13 de Junho de 2025
+          {format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
         </p>
       </div>
 
@@ -67,7 +74,9 @@ export default function Dashboard() {
                       : 'text-red-secondary-600'
                   } flex items-center gap-1`}
                 >
-                  {m.delta >= 0 ? '↑' : '↓'}
+                  {m.delta >= 0
+                    ? '↑'
+                    : '↓'}
                   {Math.abs(m.delta)}%{' '}
                   <span className="text-neutral-400">vs mês passado</span>
                 </span>
@@ -103,7 +112,9 @@ export default function Dashboard() {
                         : 'text-red-secondary-600'
                     } flex items-center gap-1`}
                   >
-                    {true ? '↑' : '↓'}
+                    {true
+                      ? '↑'
+                      : '↓'}
                     36% <span className="text-neutral-400">vs mês passado</span>
                   </span>
                 </div>

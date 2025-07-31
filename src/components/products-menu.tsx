@@ -44,7 +44,7 @@ export function ProductsMenu({ items, active, onChange }: ProductsMenuProps) {
       </motion.div>
       <nav
         ref={containerRef}
-        className="flex border-t border-neutral-100 px-2 py-4 gap-2"
+        className="flex border-t border-neutral-100 px-2 py-4 gap-2 justify-between"
       >
         {items.map((item) => {
           const isActive = item.value === active
