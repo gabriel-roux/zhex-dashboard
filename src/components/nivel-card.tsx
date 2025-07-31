@@ -1,9 +1,5 @@
 'use client'
 
-import {
-  CrownIcon,
-  StarIcon,
-} from '@phosphor-icons/react'
 import { NivelBadge } from '@/assets/images/nivel-badge-bg'
 import NivelGrid from '@/assets/images/nivel-grid.png'
 import NivelRadial from '@/assets/images/nivel-radial-header.png'
@@ -15,7 +11,7 @@ import { NivelDiamond } from '@/assets/images/nivel-diamond'
  */
 export type NivelInfo = {
   label: string // ex: “Silver”
-  maxLabel: string // ex: “R$ 50 k”
+  maxLabel: string // ex: “R$50k”
   /**
    * Classes tailwind para o background principal.
    * Use “bg-gradient-to-br …” para gradientes ou bg-zinc-900 etc.
