@@ -17,6 +17,8 @@ import { ptBR } from 'date-fns/locale'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const isPositive = true // Mock data - replace with actual logic
+  const isNegative = false // Mock data - replace with actual logic
 
   return (
     <>
@@ -104,15 +106,15 @@ export default function Dashboard() {
               <div className="flex w-full items-center justify-between">
                 {/* value + delta */}
                 <div className="flex items-baseline gap-3">
-                  <span className="text-xl font-semibold">R$ 143.400,50</span>
+                  <span className="text-xl font-semibold">R$ 143.400,50</span>
                   <span
                     className={`text-sm font-semibold ${
-                      true
+                      isPositive
                         ? 'text-green-secondary-600'
                         : 'text-red-secondary-600'
                     } flex items-center gap-1`}
                   >
-                    {true
+                    {isPositive
                       ? '↑'
                       : '↓'}
                     36% <span className="text-neutral-400">vs mês passado</span>

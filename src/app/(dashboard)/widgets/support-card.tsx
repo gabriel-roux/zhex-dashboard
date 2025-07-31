@@ -2,10 +2,8 @@
 
 import { Button } from '@/components/button'
 import {
-  AddressBookIcon,
-  ArrowsOutSimpleIcon,
-  PhoneIcon,
-  EnvelopeIcon,
+  ChatCircleIcon,
+  WhatsappLogoIcon,
 } from '@phosphor-icons/react'
 
 /**

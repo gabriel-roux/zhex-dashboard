@@ -50,6 +50,8 @@ const CustomTooltip = ({
 }
 
 export function SubscriptionWidget() {
+  const isPositive = true // Mock data - replace with actual logic
+  const isNegative = false // Mock data - replace with actual logic
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-4">
       <header className="w-full flex items-center justify-between">
@@ -67,10 +69,14 @@ export function SubscriptionWidget() {
         <span className="text-xl font-semibold">R$9.400,50</span>
         <span
           className={`text-sm font-medium ${
-            true ? 'text-green-secondary-600' : 'text-red-secondary-600'
+            isPositive
+? 'text-green-secondary-600'
+: 'text-red-secondary-600'
           } flex items-center gap-1`}
         >
-          {true ? '↑' : '↓'}
+          {isPositive
+            ? '↑'
+            : '↓'}
           6% <span className="text-neutral-400">vs mês passado</span>
         </span>
       </div>

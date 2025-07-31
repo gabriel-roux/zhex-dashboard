@@ -115,12 +115,11 @@ export function DragAndDrop() {
             value={id}
             drag={isEditing} // permite drag apenas em edição
             dragListener={isEditing} // desativa o listener quando não edita
-            className={
-              'border-2 border-dashed  border-transparent relative' +
-              (isEditing
-                ? ' !border-zhex-base-500 rounded-lg cursor-grab active:cursor-grabbing'
-                : '')
-            }
+            className={`w-full h-full rounded-lg border-2 border-dashed transition-colors ${
+              isDragOver
+                ? 'border-zhex-base-500 bg-zhex-base-500/5'
+                : 'border-neutral-300 hover:border-neutral-400'
+            }`}
             dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
           >
             {isEditing && (
@@ -144,7 +143,11 @@ export function DragAndDrop() {
               </div>
             )}
 
-            <div className={isEditing ? 'opacity-20' : ''}>{widgetMap[id]}</div>
+            <div className={isEditing
+              ? 'opacity-20'
+              : ''}
+            >{widgetMap[id]}
+            </div>
           </Reorder.Item>
         ))}
       </Reorder.Group>

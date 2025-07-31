@@ -1,6 +1,9 @@
 'use client'
 
-import { DiamondIcon } from '@phosphor-icons/react'
+import {
+  CrownIcon,
+  StarIcon,
+} from '@phosphor-icons/react'
 import { NivelBadge } from '@/assets/images/nivel-badge-bg'
 import NivelGrid from '@/assets/images/nivel-grid.png'
 import NivelRadial from '@/assets/images/nivel-radial-header.png'
@@ -104,8 +107,8 @@ export function NivelCard({ variant }: NivelCardProps) {
       />
 
       {/* título */}
-      <header className={`w-full flex items-center justify-between`}>
-        <h3 className={`relative text-base text-white font-araboto`}>
+      <header className="w-full flex items-center justify-between">
+        <h3 className="relative text-base text-white font-araboto">
           Seu nível
         </h3>
 

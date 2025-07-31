@@ -63,6 +63,19 @@ export function SalesAnalysisChart() {
     return null
   }
 
+  const chartData = {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    datasets: [
+      {
+        label: 'Vendas',
+        data: [12, 19, 3, 5, 2, 3],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        tension: 0.1,
+      },
+    ],
+  } as const
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart

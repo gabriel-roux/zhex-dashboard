@@ -6,7 +6,6 @@ import { motion } from 'framer-motion'
 import {
   BankIcon,
   CaretCircleDownIcon,
-  CaretCircleUpIcon,
 } from '@phosphor-icons/react'
 import {
   Line,
@@ -167,7 +166,9 @@ export function CashFlow() {
       {/* saldo card */}
       <Collapsible.Root
         open={openSection === 'saldo'}
-        onOpenChange={(open) => setOpenSection(open ? 'saldo' : null)}
+        onOpenChange={(open) => setOpenSection(open
+          ? 'saldo'
+          : null)}
         className="bg-gradient-to-br from-zhex-base-500/5 to-[46%] to-white rounded-lg border border-neutral-100 transition-shadow data-[state=open]:shadow-sm"
       >
         <Collapsible.Trigger asChild>
@@ -181,7 +182,9 @@ export function CashFlow() {
                 weight="fill"
                 size={20}
                 className={`text-zhex-base-500 transition-transform duration-300 ${
-                  openSection === 'saldo' ? 'rotate-180' : ''
+                  openSection === 'saldo'
+                    ? 'rotate-180'
+                    : ''
                 }`}
               />
             </button>
@@ -200,10 +203,10 @@ export function CashFlow() {
             {/* bar */}
             <div className="flex w-full h-[30px] rounded">
               <div className="bg-zhex-base-500 flex-1 flex items-center justify-center text-white font-semibold rounded-l-md">
-                R$ 23.000,00
+                R$ 23.000,00
               </div>
               <div className="bg-yellow-400 flex-[2] flex items-center justify-center text-white font-semibold rounded-r-md border-l border-white">
-                R$ 400.000,00
+                R$ 400.000,00
               </div>
             </div>
 
@@ -226,7 +229,9 @@ export function CashFlow() {
         <Collapsible.Root
           key={cat}
           open={openSection === cat}
-          onOpenChange={(open) => setOpenSection(open ? cat : null)}
+          onOpenChange={(open) => setOpenSection(open
+            ? cat
+            : null)}
           className="bg-gradient-to-br from-zhex-base-500/5 to-[46%] to-white rounded-lg border border-neutral-100 transition-shadow data-[state=open]:shadow-sm"
         >
           <Collapsible.Trigger asChild>
@@ -239,7 +244,9 @@ export function CashFlow() {
                 size={20}
                 weight="fill"
                 className={`text-zhex-base-500 transition-transform duration-300 ${
-                  openSection === cat ? 'rotate-180' : ''
+                  openSection === cat
+                    ? 'rotate-180'
+                    : ''
                 }`}
               />
             </button>

@@ -70,6 +70,8 @@ const CustomTooltip = ({
 /* COMPONENT                                                           */
 /* ------------------------------------------------------------------ */
 export function GrossVolumeWidget() {
+  const isPositive = true // Mock data - replace with actual logic
+  const isNegative = false // Mock data - replace with actual logic
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-4">
       {/* Header ---------------------------------------------------- */}
@@ -89,12 +91,12 @@ export function GrossVolumeWidget() {
         <span className="text-xl font-semibold">R$9.400,50</span>
         <span
           className={`text-sm font-medium ${
-            true
+            isPositive
 ? 'text-green-secondary-600'
 : 'text-red-secondary-600'
           } flex items-center gap-1`}
         >
-          {true
+          {isPositive
             ? '↑'
             : '↓'}
           6% <span className="text-neutral-400">vs mês passado</span>

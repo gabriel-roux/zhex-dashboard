@@ -14,8 +14,8 @@ import {
  */
 export function ChargebackControlWidget() {
   // Mock – valores estáticos; troque por dados vindos da API
-  const usedPercent = 0.21 // 0,21 %
-  const limitPercent = 2 // 2,00 %
+  const usedPercent = 0.21 // 0,21%
+  const limitPercent = 2 // 2,00%
 
   /* ---- Helpers gráfica (círculo de progresso) -------------------- */
   const radius = 28
