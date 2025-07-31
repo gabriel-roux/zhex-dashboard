@@ -11,7 +11,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { OnboardingSuccessModal } from '../onboarding-success-modal'
-import Cookies from 'js-cookie'
 import { useAuth } from '@/contexts/auth/context'
 
 /* -------------------------------------------------------------------------- */
@@ -45,8 +44,6 @@ export function SignatureForm({
   const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const { isAuthenticated } = useAuth()
-
-  const { setIsAuthenticated } = useAuth()
 
   const {
     register,
@@ -82,10 +79,7 @@ export function SignatureForm({
       password: data.password,
     }) as { nextStep?: { step: number; title: string; description: string; accessToken?: string; refreshToken?: string } }
 
-    if (result.nextStep?.accessToken && result.nextStep?.refreshToken) {
-      Cookies.set('accessToken', result.nextStep.accessToken)
-      Cookies.set('refreshToken', result.nextStep.refreshToken)
-      setIsAuthenticated(true)
+    if (result.nextStep) {
       setShowSuccessModal(true)
     }
   }
@@ -234,7 +228,7 @@ export function SignatureForm({
       {/* Success Modal */}
       <OnboardingSuccessModal
         isOpen={showSuccessModal}
-        onClose={() => { window.location.href = '/' }}
+        onClose={() => { window.location.href = '/login' }}
       />
     </>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { JSX, useState } from 'react'
+import { JSX, useState } from 'react'
 import {
   ArrowsOutCardinalIcon,
   CalendarDotsIcon,
@@ -43,7 +43,6 @@ export function DragAndDrop() {
   const [isEditing, setIsEditing] = useState(false)
   const [originalOrder, setOriginalOrder] = useState<string[]>([])
   const [changesMade, setChangesMade] = useState(false)
-  const [isDragOver, setIsDragOver] = useState(false)
 
   /** ordem atual (pode vir da API/localStorage) */
   const [items, setItems] = usePersistedState<string[]>('dashboard-widgets', [
@@ -116,20 +115,12 @@ export function DragAndDrop() {
             value={id}
             drag={isEditing} // permite drag apenas em edição
             dragListener={isEditing} // desativa o listener quando não edita
-            className={`w-full h-full rounded-lg border-2 border-dashed transition-colors ${
-              isDragOver
-                ? 'border-zhex-base-500 bg-zhex-base-500/5'
-                : 'border-neutral-300 hover:border-neutral-400'
-            }`}
-            onDragOver={(e: React.DragEvent) => {
-              e.preventDefault()
-              setIsDragOver(true)
-            }}
-            onDragLeave={() => setIsDragOver(false)}
-            onDrop={(e: React.DragEvent) => {
-              e.preventDefault()
-              setIsDragOver(false)
-            }}
+            className={
+              'border-2 border-dashed  border-transparent relative' +
+              (isEditing
+                ? ' !border-zhex-base-500 rounded-lg cursor-grab active:cursor-grabbing'
+                : '')
+            }
             dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
           >
             {isEditing && (
