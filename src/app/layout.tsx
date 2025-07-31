@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 // eslint-disable-next-line camelcase
 import { Inter, Style_Script } from 'next/font/google'
 import localFont from 'next/font/local'
@@ -125,6 +125,9 @@ export const metadata: Metadata = {
     creator: '@zhex_oficial',
   },
   manifest: '/site.webmanifest',
+}
+
+export const viewport: Viewport = {
   themeColor: '#002DFF',
 }
 

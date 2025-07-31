@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Container } from '@/components/container'
 import { EnvelopeIcon, SmileyXEyesIcon } from '@phosphor-icons/react'
 import { useApi } from '@/hooks/useApi'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const [verifying, setVerifying] = useState(true)
@@ -83,5 +83,30 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </Container>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <Container>
+        <div className="w-full bg-white rounded-lg px-5 mb-10 flex flex-col justify-center items-center gap-4 py-12">
+          <div className="w-12 h-12 bg-zhex-base-500/15 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-lg font-araboto font-semibold text-neutral-950">
+              Carregando...
+            </h2>
+            <p className="text-neutr-500 font-araboto">
+              Aguarde enquanto carregamos a página.
+            </p>
+          </div>
+        </div>
+      </Container>
+    }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
