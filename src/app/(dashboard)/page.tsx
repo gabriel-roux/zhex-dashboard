@@ -18,7 +18,6 @@ import { ptBR } from 'date-fns/locale'
 export default function Dashboard() {
   const { user } = useAuth()
   const isPositive = true // Mock data - replace with actual logic
-  const isNegative = false // Mock data - replace with actual logic
 
   return (
     <>

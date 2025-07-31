@@ -71,7 +71,6 @@ const CustomTooltip = ({
 /* ------------------------------------------------------------------ */
 export function GrossVolumeWidget() {
   const isPositive = true // Mock data - replace with actual logic
-  const isNegative = false // Mock data - replace with actual logic
   return (
     <div className="w-full h-[380px] bg-white border border-neutral-200 rounded-lg py-5 px-4 flex flex-col gap-4">
       {/* Header ---------------------------------------------------- */}

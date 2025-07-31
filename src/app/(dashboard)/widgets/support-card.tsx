@@ -1,10 +1,10 @@
 'use client'
 
-import { Button } from '@/components/button'
 import {
-  ChatCircleIcon,
-  WhatsappLogoIcon,
+  AddressBookIcon,
+  ArrowsOutSimpleIcon,
 } from '@phosphor-icons/react'
+import { Button } from '@/components/button'
 
 /**
  * Card: Seu gerente de contas

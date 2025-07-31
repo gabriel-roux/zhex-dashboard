@@ -27,7 +27,7 @@ export function ChargebackControlWidget() {
   const gap = circumference / dotCount // distância entre os centros
   const dotPattern = `0 ${gap}` // comprimento zero + gap (pontinho arredondado)
 
-  const progress = (usedPercent / limitPercent) * 100 // 10,5 %
+  const progress = (usedPercent / limitPercent) * 100 // 10,5%
   const dashGapFix = 0.5
   const dashOffset =
     circumference - (progress / 100) * circumference + dashGapFix

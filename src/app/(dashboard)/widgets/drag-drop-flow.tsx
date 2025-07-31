@@ -1,6 +1,6 @@
 'use client'
 
-import { JSX, useState } from 'react'
+import React, { JSX, useState } from 'react'
 import {
   ArrowsOutCardinalIcon,
   CalendarDotsIcon,
@@ -43,6 +43,7 @@ export function DragAndDrop() {
   const [isEditing, setIsEditing] = useState(false)
   const [originalOrder, setOriginalOrder] = useState<string[]>([])
   const [changesMade, setChangesMade] = useState(false)
+  const [isDragOver, setIsDragOver] = useState(false)
 
   /** ordem atual (pode vir da API/localStorage) */
   const [items, setItems] = usePersistedState<string[]>('dashboard-widgets', [
@@ -120,6 +121,15 @@ export function DragAndDrop() {
                 ? 'border-zhex-base-500 bg-zhex-base-500/5'
                 : 'border-neutral-300 hover:border-neutral-400'
             }`}
+            onDragOver={(e: React.DragEvent) => {
+              e.preventDefault()
+              setIsDragOver(true)
+            }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={(e: React.DragEvent) => {
+              e.preventDefault()
+              setIsDragOver(false)
+            }}
             dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
           >
             {isEditing && (
