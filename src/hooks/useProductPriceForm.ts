@@ -49,18 +49,14 @@ export function useProductPriceForm(productId: string) {
     try {
       setInitialLoading(true)
 
-      console.log('fetching product price', productId)
-
       const response = await get<{ success: boolean; data: ProductPriceData }>(`/products/${productId}/price`)
-
-      console.log(response.data)
 
       if (response.data.success) {
         const data = response.data.data
         setPriceData(data)
 
         // Converter centavos para reais e atualizar formulário
-        const amountInReais = (data.baseAmount / 100).toFixed(2)
+        const amountInReais = (data.baseAmount).toFixed(2)
         form.reset({
           baseAmount: Number(amountInReais),
           baseCurrency: data.baseCurrency,
@@ -79,7 +75,7 @@ export function useProductPriceForm(productId: string) {
     setLoading(true)
     try {
       // Converter reais para centavos
-      const amountInCents = Math.round(data.baseAmount * 100)
+      const amountInCents = Math.round(data.baseAmount)
 
       // Garantir que a moeda base sempre esteja nas moedas habilitadas
       const enabledCurrenciesWithBase = data.enabledCurrencies.includes(data.baseCurrency)

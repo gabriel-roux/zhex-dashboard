@@ -13,6 +13,7 @@ import {
   NotepadIcon,
   GlobeIcon,
   WebhooksLogoIcon,
+  UserIcon,
 } from '@phosphor-icons/react/ssr'
 
 import { usePathname } from 'next/navigation'
@@ -33,6 +34,7 @@ type NavLink = {
 const primaryLinks: NavLink[] = [
   { href: '/', label: 'Dashboard', Icon: CirclesFourIcon },
   { href: '/products', label: 'Produtos', Icon: CubeIcon },
+  { href: '/my-account', label: 'Minha conta', Icon: UserIcon },
   { href: '/affiliates', label: 'Afiliados', Icon: UsersThreeIcon },
 ]
 

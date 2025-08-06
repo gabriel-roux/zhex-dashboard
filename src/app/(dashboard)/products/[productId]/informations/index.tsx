@@ -79,7 +79,7 @@ export function ProductInformations({ product, form, setRemovedImageIds, loading
 
   return (
     <>
-      <div className="flex items-start justify-between w-full gap-5">
+      <div className="flex items-start justify-between w-full gap-5 mt-6">
         {/* Formulário à esquerda */}
         <div className="w-full max-w-[780px]">
           <div className="flex flex-col gap-4">

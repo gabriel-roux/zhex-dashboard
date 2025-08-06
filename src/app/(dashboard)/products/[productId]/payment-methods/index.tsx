@@ -12,6 +12,8 @@ import { PaymentMethod, ProductPaymentMethod } from '@/@types/payment-methods'
 import { ProductPriceFormData } from '@/hooks/useProductPriceForm'
 import { PaymentMethodsTableSkeleton } from '@/components/skeletons/payment-methods-skeleton'
 import { PaymentPriceFormSkeleton } from '@/components/skeletons/payment-price-form-skeleton'
+import { ProductType } from '@/@types/product'
+import { Warning } from '@/components/warning'
 
 interface PaymentMethodsData {
   paymentMethods: PaymentMethod[]
@@ -22,10 +24,11 @@ const allCurrencies = ['EUR', 'USD', 'BRL', 'GBP', 'JPY']
 
 interface PaymentMethodsProps {
   productId: string
+  productType: ProductType
   priceForm?: UseFormReturn<ProductPriceFormData>
 }
 
-export function PaymentMethods({ productId, priceForm }: PaymentMethodsProps) {
+export function PaymentMethods({ productId, productType, priceForm }: PaymentMethodsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
   const [paymentMethodsData, setPaymentMethodsData] = useState<PaymentMethodsData | null>(null)
@@ -37,8 +40,6 @@ export function PaymentMethods({ productId, priceForm }: PaymentMethodsProps) {
       setLoading(true)
 
       const response = await get<{ success: boolean; data: PaymentMethodsData; message?: string }>(`/products/${productId}/payment-methods`)
-
-      console.log(response.data)
 
       if (response.data.success) {
         setPaymentMethodsData(response.data.data)
@@ -112,7 +113,7 @@ export function PaymentMethods({ productId, priceForm }: PaymentMethodsProps) {
 
   return (
     <>
-      <div className="mb-3">
+      <div className="mb-3 mt-6">
         <h2 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
           Selecione o método de pagamento:
         </h2>
@@ -227,19 +228,33 @@ export function PaymentMethods({ productId, priceForm }: PaymentMethodsProps) {
           {priceForm
             ? (
               <>
-                <div>
-                  <label className="text-neutral-1000 font-medium font-araboto text-base mb-1 block">
-                    Preço do produto: <span className="text-red-secondary-500">*</span>
-                  </label>
-                  <PriceField
-                    control={priceForm.control}
-                    name="baseAmount"
-                    placeholder="129,40"
-                    selectedCurrency={priceForm.watch('baseCurrency')}
-                    withoutCurrencySelector
-                    error={priceForm.formState.errors.baseAmount?.message}
-                  />
-                </div>
+                {
+                    productType === ProductType.RECURRING
+                      ? (
+                        <Warning
+                          size="sm"
+                          variant="info"
+                          title="Preço indisponível para edição"
+                          description="Para produtos com recorrência, o ajuste de preço é feito na aba “Assinaturas”."
+                        />
+                        )
+                      : (
+                        <div>
+                          <label className="text-neutral-1000 font-medium font-araboto text-base mb-1 block">
+                            Preço do produto: <span className="text-red-secondary-500">*</span>
+                          </label>
+                          <PriceField
+                            control={priceForm.control}
+                            name="baseAmount"
+                            placeholder="129,40"
+                            selectedCurrency={priceForm.watch('baseCurrency')}
+                            withoutCurrencySelector
+                            error={priceForm.formState.errors.baseAmount?.message}
+                          />
+                        </div>
+                        )
+                  }
+
                 <div>
                   <label className="text-neutral-1000 font-medium font-araboto text-base mb-1 block">
                     Moeda base: <span className="text-red-secondary-500">*</span>

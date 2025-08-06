@@ -12,6 +12,7 @@ import {
   RepeatIcon,
   UsersThreeIcon,
   BroadcastIcon,
+  ArrowLeftIcon,
 } from '@phosphor-icons/react'
 import { useEffect, useState, use } from 'react'
 import { motion } from 'framer-motion'
@@ -30,6 +31,8 @@ import { useProductPriceForm, ProductPriceFormData } from '@/hooks/useProductPri
 import { useProductAffiliateForm, AffiliateFormData } from '@/hooks/useProductAffiliateForm'
 import { Skeleton } from '@/components/skeleton'
 import { useRouter } from 'next/navigation'
+import { Checkouts } from './checkout'
+import Link from 'next/link'
 
 interface CustomError extends Error {
   isProductNotFound?: boolean
@@ -150,9 +153,11 @@ export default function ProductPage({ params }: ProductPageProps) {
           />
         )
       case 'pagamento':
-        return <PaymentMethods productId={productId} priceForm={priceForm} />
+        return <PaymentMethods productId={productId} productType={product.type} priceForm={priceForm} />
       case 'links':
-        return <PaymentLinks productId={productId} />
+        return <PaymentLinks productId={productId} productType={product.type} />
+      case 'checkout':
+        return <Checkouts productId={productId} />
       case 'assinaturas':
         return <ProductSubscriptions productId={productId} />
       case 'cupons':
@@ -218,9 +223,11 @@ export default function ProductPage({ params }: ProductPageProps) {
               <Skeleton className="w-[190px] h-5 mb-2 rounded-md" />
               )
             : (
-              <h1 className="text-lg text-neutral-950 font-araboto font-medium">
+              <Link href="/products" className="flex items-center gap-2 text-neutral-1000 text-lg font-araboto font-medium hover:text-zhex-base-500 transition-all duration-300">
+                <ArrowLeftIcon size={20} weight="bold" className="text-zhex-base-500 -mt-1" />
                 {product.name}
-              </h1>
+              </Link>
+
               )}
 
           <p className="text-neutral-500 text-base font-araboto mb-6">

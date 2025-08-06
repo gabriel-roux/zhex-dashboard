@@ -11,6 +11,7 @@ import { motion } from 'framer-motion'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { PaymentLink } from '@/@types/payment-link'
 import { PaymentLinksTableSkeleton } from '@/components/skeletons/payment-links-table-skeleton'
+import { ProductType } from '@/@types/product'
 
 interface Checkout {
   id: string
@@ -20,9 +21,10 @@ interface Checkout {
 
 interface PaymentLinksProps {
   productId: string
+  productType: ProductType
 }
 
-export function PaymentLinks({ productId }: PaymentLinksProps) {
+export function PaymentLinks({ productId, productType }: PaymentLinksProps) {
   const [hasLinks, setHasLinks] = useState(false)
   const [links, setLinks] = useState<PaymentLink[]>([])
   const [checkouts, setCheckouts] = useState<Checkout[]>([])
@@ -225,9 +227,11 @@ export function PaymentLinks({ productId }: PaymentLinksProps) {
                           </td>
                           <td className="py-4 px-6">
                             <span className="font-araboto text-neutral-1000">
-                              {link.price.baseAmount === 0
+                              {link.isFreeOffer
                                 ? 'Gratuito'
-                                : (link.price.baseAmount / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                : `${(link.price.baseAmount / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} ${productType === ProductType.RECURRING
+? ` / ${link?.subscription?.billingInterval || ''}`
+: ''}`}
                             </span>
                           </td>
                           <td className="py-4 px-6">
@@ -308,6 +312,7 @@ export function PaymentLinks({ productId }: PaymentLinksProps) {
         checkouts={checkouts}
         onLinkCreated={handleLinkCreated}
         mode={modalMode}
+        productType={productType}
         linkToEdit={linkToEdit}
       />
 

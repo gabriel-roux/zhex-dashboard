@@ -230,7 +230,7 @@ export function PixelModal({ open, onOpenChange, productId, onPixelCreated, mode
 
         if (response.data.success) {
           onPixelCreated()
-          onOpenChange(false)
+    onOpenChange(false)
           setError(null)
         } else {
           setError(response.data.message)

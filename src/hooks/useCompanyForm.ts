@@ -219,7 +219,6 @@ export function useCompanyForm() {
         state: data.state,
       }
 
-      console.log('📤 Updating company...')
       const response = await put<{ success: boolean; message: string }>(`/company/${user?.companyId}`, updateData)
 
       if (response.data.success) {

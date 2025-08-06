@@ -80,7 +80,6 @@ export function useBankForm() {
   }, [user?.companyId, get, form])
 
   const handleSubmit = async (data: BankFormData) => {
-    console.log('🚀 useBankForm handleSubmit called with:', data)
     setLoading(true)
     try {
       // Mapear dados do formulário para o formato da API
@@ -92,7 +91,6 @@ export function useBankForm() {
         accountType: 'CHECKING', // Default para conta corrente
       }
 
-      console.log('📤 Updating bank account...')
       const response = await put<{ success: boolean; message: string }>('/company/bank-account', bankData)
 
       if (response.data.success) {

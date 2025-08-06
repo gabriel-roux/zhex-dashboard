@@ -49,11 +49,9 @@ export function useUserForm() {
   }, [user, form])
 
   const handleSubmit = async (data: UserFormData) => {
-    console.log('🚀 useUserForm handleSubmit called with:', data)
     setLoading(true)
     try {
       // Atualizar dados do usuário
-      console.log('📤 Updating profile...')
       const updateResponse = await put<{ success: boolean; message: string; user: { id: string; firstName: string; lastName: string; email: string; phone?: string; avatarUrl?: string } }>('/users/profile', {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -61,7 +59,6 @@ export function useUserForm() {
       })
 
       if (updateResponse.data.success) {
-        console.log('✅ Profile updated:', updateResponse.data.user)
         // Atualizar contexto do usuário com os novos dados
         const updatedUser = {
           ...user!,

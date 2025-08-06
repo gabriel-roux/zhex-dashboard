@@ -1,0 +1,42 @@
+export interface Checkout {
+  id: string
+  name: string
+  title?: string
+  faviconUrl?: string
+  successUrl?: string
+  cancelUrl?: string
+  requireEmailConfirmation: boolean
+  requireDocument: boolean
+  requireAddress: boolean
+  requireCoupon: boolean
+  bannerLayout: 'LAYOUT_1' | 'LAYOUT_2' | 'LAYOUT_3'
+  mainBannerEnabled: boolean
+  mainBannerUrl?: string
+  sideBannerEnabled: boolean
+  sideBannerUrl?: string
+  cardColor: string
+  chipColor: string
+  selectColor: string
+  securityCodeColor: string
+  backgroundColor: string
+  backgroundImageUrl?: string
+  ctaColor: string
+  testimonialsEnabled: boolean
+  timerEnabled: boolean
+  timerDays: number
+  timerHours: number
+  timerMinutes: number
+  timerSeconds: number
+  offerText?: string
+  timerCardColor: string
+  timerCardColor2: string
+  timerTextColor: string
+  timerBackground: string
+  orderBumpsEnabled: boolean
+  customDomainEnabled: boolean
+  customDomainUrl?: string
+  dnsValidated: boolean
+  isActive: boolean
+  createdAt: string
+  paymentLinksCount: number
+}

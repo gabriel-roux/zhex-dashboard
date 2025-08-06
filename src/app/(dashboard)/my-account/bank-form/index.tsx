@@ -5,7 +5,7 @@ import { SelectField, TextField } from '@/components/textfield'
 import { banks } from '@/assets/lists/banks'
 import { BankFormData } from '@/hooks/useBankForm'
 import { UseFormReturn } from 'react-hook-form'
-import { WarningCircleIcon } from '@phosphor-icons/react'
+import { Warning } from '@/components/warning'
 
 interface BankFormProps {
   form: UseFormReturn<BankFormData>
@@ -79,17 +79,13 @@ export function BankForm({ form, error }: BankFormProps) {
         </div>
 
         {/* Informações adicionais */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <WarningCircleIcon size={20} className="text-zhex-base-500" />
 
-            <p className="text-sm text-zhex-base-500">
-              Os dados bancários são utilizados exclusivamente para processar pagamentos.
-              Certifique-se de que as informações estão corretas para evitar problemas
-              na transferência de valores.
-            </p>
-          </div>
-        </div>
+        <Warning
+          size="md"
+          variant="info"
+          title="Informações adicionais"
+          description="Certifique-se de que as informações estão corretas para evitar problemas na transferência de valores."
+        />
 
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">

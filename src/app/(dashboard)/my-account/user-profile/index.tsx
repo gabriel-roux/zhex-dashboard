@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MaskedTextField, TextField } from '@/components/textfield'
 import { PencilSimpleLineIcon } from '@phosphor-icons/react'
 import { UseFormReturn } from 'react-hook-form'
@@ -8,6 +8,8 @@ import { UserFormData } from '@/hooks/useUserForm'
 import { useAuth } from '@/contexts/auth/context'
 import { EmailChangeModal } from './email-change-modal'
 import { PasswordChangeModal } from './password-change-modal'
+import { Warning } from '@/components/warning'
+import { useApi } from '@/hooks/useApi'
 
 interface UserProfileProps {
   form: UseFormReturn<UserFormData>
@@ -18,6 +20,29 @@ export function UserProfile({ form }: UserProfileProps) {
   const { user } = useAuth()
   const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [passwordModalOpen, setPasswordModalOpen] = useState(false)
+  const [sendedEmail, setSendedEmail] = useState(false)
+  const api = useApi()
+
+  const handleVerifyEmail = async () => {
+    const response = await api.post('/auth/resend-verification-email')
+    const { success } = response.data as { success: boolean }
+
+    console.log(response.data)
+
+    if (success) {
+      setSendedEmail(true)
+    }
+  }
+
+  useEffect(() => {
+    if (!sendedEmail) return
+
+    const timer = setTimeout(() => {
+      setSendedEmail(false)
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [sendedEmail])
 
   return (
     <div className="w-full mt-6">
@@ -112,6 +137,25 @@ export function UserProfile({ form }: UserProfileProps) {
             Confirmaremos sua senha antes de alterá-la.
           </span>
         </div>
+
+        {
+          !user?.emailVerified && (
+            <Warning
+              size="md"
+              variant={sendedEmail
+                ? 'success'
+                : 'warning'}
+              title={sendedEmail
+                ? 'E-mail enviado com sucesso'
+                : 'E-mail não verificado'}
+              description={sendedEmail
+                ? 'Enviamos um e-mail de confirmação para alterar seu e-mail. Por favor, verifique seu e-mail para continuar.'
+                : 'Você ainda não verificou seu e-mail. Por favor, verifique seu e-mail para continuar.'}
+              onButtonClick={handleVerifyEmail}
+              {...(!sendedEmail && { buttonText: 'Verificar e-mail' })}
+            />
+          )
+        }
       </div>
 
       {/* Modais */}

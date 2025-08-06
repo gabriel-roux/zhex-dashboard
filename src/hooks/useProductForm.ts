@@ -110,15 +110,6 @@ export function useProductForm(product: ProductProps | null, productId: string, 
       // IDs das imagens removidas
       formData.append('removedImageIds', JSON.stringify(removedImageIds))
 
-      // Debug: verificar FormData
-      console.log('FormData contents:')
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value)
-      }
-      console.log('FormData size:', formData.get('hasData')
-        ? 'Has data'
-        : 'Empty')
-
       // Verificar se há imagens para decidir o formato
       const hasNewImages = data.newImages && data.newImages.length > 0
 
@@ -174,9 +165,6 @@ export function useProductForm(product: ProductProps | null, productId: string, 
       if (!response.ok) {
         throw new Error('Erro ao atualizar produto')
       }
-
-      console.log('response')
-      console.log(response)
 
       if (response.ok) {
         setError(null)

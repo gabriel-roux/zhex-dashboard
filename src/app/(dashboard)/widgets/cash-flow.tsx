@@ -20,7 +20,7 @@ import {
   Bar,
 } from 'recharts'
 
-function TinyChart() {
+export function TinyChart() {
   const data = [
     { v: 30 },
     { v: 42 },

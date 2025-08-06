@@ -183,6 +183,8 @@ export function CreatePlanModal({
           paymentLinkIds: data.paymentLinkIds,
         })
 
+        console.log('Resposta da API:', response.data)
+
         if (response.data.success) {
           onSubscriptionCreated()
           onOpenChange(false)
@@ -205,6 +207,8 @@ export function CreatePlanModal({
           paymentDescription: '',
           paymentLinkIds: data.paymentLinkIds,
         })
+
+        console.log('Resposta da API:', response.data)
 
         if (response.data.success) {
           onSubscriptionCreated()
@@ -387,13 +391,13 @@ export function CreatePlanModal({
                     )}
                   />
                 </div>
-              </div>
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
+              </div>
 
               {/* Botão de criar - Fixo no final */}
               <div className="px-8 py-6 flex-shrink-0">

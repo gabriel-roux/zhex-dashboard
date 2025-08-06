@@ -9,28 +9,17 @@ import { useState, useEffect } from 'react'
 import { Switch } from '@/components/switch'
 import { useApi } from '@/hooks/useApi'
 import { PriceField } from '@/components/price-field'
-
-interface PaymentLink {
-  id: string
-  name: string
-  checkout: {
-    id: string
-    name: string
-  }
-  price: {
-    baseAmount: number
-    baseCurrency: string
-    enabledCurrencies: string[]
-  }
-  isActive: boolean
-  accessUrl: string
-}
+import { ProductType } from '@/@types/product'
+import { PaymentLink } from '@/@types/payment-link'
+import { Warning } from '@/components/warning'
 
 // Schema de validação
 const linkSchema = z.object({
   name: z.string().min(1, 'Nome do link é obrigatório'),
+  isActive: z.boolean(),
   checkout: z.string().min(1, 'Selecione um checkout'),
   isFreeOffer: z.boolean(),
+  usePriceFromProduct: z.boolean(),
   price: z.number().optional(),
 })
 
@@ -44,6 +33,7 @@ interface PaymentLinkModalProps {
   onLinkCreated: () => void
   mode: 'create' | 'edit'
   linkToEdit?: PaymentLink | null
+  productType: ProductType
 }
 
 export function PaymentLinkModal({
@@ -54,9 +44,8 @@ export function PaymentLinkModal({
   onLinkCreated,
   mode,
   linkToEdit,
+  productType,
 }: PaymentLinkModalProps) {
-  const [isFreeOffer, setIsFreeOffer] = useState(false)
-  const [isStatusActive, setIsStatusActive] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,24 +60,20 @@ export function PaymentLinkModal({
       checkout: mode === 'edit' && linkToEdit
         ? linkToEdit.checkout.id
         : '',
+      isActive: mode === 'edit' && linkToEdit
+        ? linkToEdit.isActive
+        : true,
       isFreeOffer: mode === 'edit' && linkToEdit
-        ? linkToEdit.price.baseAmount === 0
+        ? linkToEdit.isFreeOffer
         : false,
       price: mode === 'edit' && linkToEdit
         ? linkToEdit.price.baseAmount
         : 0,
+      usePriceFromProduct: mode === 'edit' && linkToEdit
+        ? linkToEdit.usePriceFromProduct
+        : false,
     },
   })
-
-  // Watch isFreeOffer para validação condicional
-  const watchedIsFreeOffer = watch('isFreeOffer')
-
-  // Atualizar schema quando isFreeOffer muda
-  useEffect(() => {
-    if (watchedIsFreeOffer) {
-      setValue('price', 0)
-    }
-  }, [watchedIsFreeOffer, setValue])
 
   // Resetar formulário quando modal abre/fecha ou muda o modo
   useEffect(() => {
@@ -101,18 +86,20 @@ export function PaymentLinkModal({
           ? linkToEdit.checkout.id
           : '',
         isFreeOffer: mode === 'edit' && linkToEdit
-          ? linkToEdit.price.baseAmount === 0
+          ? linkToEdit.isFreeOffer
           : false,
-        price: mode === 'edit' && linkToEdit
-          ? linkToEdit.price.baseAmount
+        price: mode === 'edit' && linkToEdit && productType === ProductType.ONE_TIME
+          ? linkToEdit.price.baseAmount > 0
+            ? linkToEdit.price.baseAmount
+            : 0
           : 0,
+        usePriceFromProduct: mode === 'edit' && linkToEdit
+          ? linkToEdit.usePriceFromProduct
+          : false,
+        isActive: mode === 'edit' && linkToEdit
+          ? linkToEdit.isActive
+          : true,
       })
-      setIsFreeOffer(mode === 'edit' && linkToEdit
-        ? linkToEdit.price.baseAmount === 0
-        : false)
-      setIsStatusActive(mode === 'edit' && linkToEdit
-        ? linkToEdit.isActive
-        : true)
     }
   }, [open, mode, linkToEdit, reset])
 
@@ -121,12 +108,29 @@ export function PaymentLinkModal({
       setLoading(true)
 
       if (mode === 'create') {
-        const response = await post<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links`, {
+        const createData: {
+          name: string
+          checkoutId: string
+          isFreeOffer: boolean
+          usePriceFromProduct?: boolean
+          price?: number
+        } = {
           name: data.name,
           checkoutId: data.checkout,
           isFreeOffer: data.isFreeOffer,
-          price: data.price || 0,
-        })
+        }
+
+        // Só incluir usePriceFromProduct se for produto ONE_TIME
+        if (productType === ProductType.ONE_TIME) {
+          createData.usePriceFromProduct = data.usePriceFromProduct
+        }
+
+        // Só incluir price se não for gratuito e for produto ONE_TIME
+        if (!data.isFreeOffer && data.price && data.price > 0 && productType === ProductType.ONE_TIME) {
+          createData.price = data.price
+        }
+
+        const response = await post<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links`, createData)
 
         if (response.data.success) {
           onLinkCreated()
@@ -136,13 +140,29 @@ export function PaymentLinkModal({
           setError(response.data.message)
         }
       } else if (mode === 'edit' && linkToEdit) {
-        const response = await put<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links/${linkToEdit.id}`, {
+        const updateData: {
+          name: string
+          checkoutId: string
+          isActive: boolean
+          isFreeOffer: boolean
+          usePriceFromProduct: boolean
+          price?: number
+        } = {
           name: data.name,
           checkoutId: data.checkout,
-          isActive: isStatusActive,
+          isActive: data.isActive,
           isFreeOffer: data.isFreeOffer,
-          price: data.price || 0,
-        })
+          usePriceFromProduct: data.usePriceFromProduct,
+        }
+
+        // Só incluir price se não for gratuito, tiver um preço válido E for produto ONE_TIME
+        if (!data.isFreeOffer && data.price && data.price > 0 && productType === ProductType.ONE_TIME) {
+          updateData.price = data.price
+        }
+
+        console.log('🔄 Enviando dados para atualização:', updateData)
+
+        const response = await put<{ success: boolean; data: unknown; message: string }>(`/products/${productId}/payment-links/${linkToEdit.id}`, updateData)
 
         if (response.data.success) {
           onLinkCreated()
@@ -219,7 +239,10 @@ export function PaymentLinkModal({
                   <label className="text-neutral-1000 font-medium font-araboto text-base">
                     Status do link:
                   </label>
-                  <Switch active={isStatusActive} setValue={setIsStatusActive} />
+                  <Switch
+                    active={watch('isActive')}
+                    setValue={(value) => setValue('isActive', value)}
+                  />
                 </div>
 
                 {/* Checkout */}
@@ -239,33 +262,65 @@ export function PaymentLinkModal({
                   />
                 </div>
 
+                {/* Usar preço do produto */}
                 {/* Oferta gratuita */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-neutral-1000 font-medium font-araboto text-base">
                       Oferta gratuita:
                     </label>
-                    <Switch active={isFreeOffer} setValue={setIsFreeOffer} />
+                    <Switch
+                      active={watch('isFreeOffer')}
+                      setValue={(value) => setValue('isFreeOffer', value)}
+                    />
                   </div>
                   <p className="text-neutral-500 text-sm">
                     Ao ativar, você não poderá editar o preço da oferta.
                   </p>
                 </div>
 
+                {productType === ProductType.ONE_TIME && !watch('isFreeOffer') && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-neutral-1000 font-medium font-araboto text-base">
+                        Usar preço do produto:
+                      </label>
+                      <Switch
+                        active={watch('usePriceFromProduct')}
+                        setValue={(value) => setValue('usePriceFromProduct', value)}
+                      />
+                    </div>
+                    <p className="text-neutral-500 text-sm">
+                      Ao ativar, o preço do link será o mesmo do produto.
+                    </p>
+                  </div>
+                )}
+
                 {/* Preço */}
-                <div>
-                  <label className="text-neutral-1000 font-medium font-araboto text-base mb-2 block">
-                    Preço:
-                  </label>
-                  <PriceField
-                    name="price"
-                    placeholder="129,40"
-                    withoutCurrencySelector
-                    control={control}
-                    error={errors.price?.message}
-                    disabled={isFreeOffer}
+                {!watch('isFreeOffer') && !watch('usePriceFromProduct') && productType === ProductType.ONE_TIME && (
+                  <div>
+                    <label className="text-neutral-1000 font-medium font-araboto text-base mb-2 block">
+                      Preço:
+                    </label>
+                    <PriceField
+                      name="price"
+                      placeholder="129,40"
+                      withoutCurrencySelector
+                      control={control}
+                      error={errors.price?.message}
+                      disabled={watch('isFreeOffer')}
+                    />
+                  </div>
+                )}
+
+                {productType === ProductType.RECURRING && !watch('isFreeOffer') && (
+                  <Warning
+                    size="sm"
+                    variant="warning"
+                    title="Preço indisponível para edição"
+                    description="Para produtos com recorrência, o ajuste de preço é feito na aba “Assinaturas”."
                   />
-                </div>
+                )}
 
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
