@@ -12,6 +12,7 @@ import { ConfirmationModal } from '@/components/confirmation-modal'
 import { PaymentLink } from '@/@types/payment-link'
 import { PaymentLinksTableSkeleton } from '@/components/skeletons/payment-links-table-skeleton'
 import { ProductType } from '@/@types/product'
+import { EmptyState } from '@/components/empty-state'
 
 interface Checkout {
   id: string
@@ -188,15 +189,11 @@ export function PaymentLinks({ productId, productType }: PaymentLinksProps) {
         : !hasLinks
             ? (
           /* Empty State */
-              <div className="flex flex-col items-center justify-center py-10">
-                <LinkIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-                <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                  Crie seu link de pagamento em segundos
-                </h3>
-                <p className="text-neutral-600 text-center max-w-md">
-                  Gere cobranças rápidas, compartilhe com seus clientes e receba direto na sua conta.
-                </p>
-              </div>
+              <EmptyState
+                icon={<LinkIcon size={28} weight="bold" className="text-neutral-400" />}
+                title="Crie seu link de pagamento em segundos"
+                description="Gere cobranças rápidas, compartilhe com seus clientes e receba direto na sua conta."
+              />
               )
             : (
           /* Table State */

@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useLoginHistory, LoginSession } from '@/hooks/useLoginHistory'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { LoginHistorySkeleton } from '@/components/skeletons/login-history-skeleton'
+import { EmptyState } from '@/components/empty-state'
 
 export function LoginHistory() {
   const {
@@ -147,15 +148,11 @@ export function LoginHistory() {
         : sessions.length === 0
           ? (
         /* Empty State */
-            <div className="flex flex-col items-center justify-center py-10">
-              <GlobeIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-              <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                Nenhuma sessão encontrada
-              </h3>
-              <p className="text-neutral-600 text-center max-w-md">
-                Seu histórico de login aparecerá aqui quando você fizer login em diferentes dispositivos.
-              </p>
-            </div>
+            <EmptyState
+              icon={<GlobeIcon size={28} weight="bold" className="text-neutral-400" />}
+              title="Nenhuma sessão encontrada"
+              description="Seu histórico de login aparecerá aqui quando você fizer login em diferentes dispositivos."
+            />
             )
           : (
         /* Table State */

@@ -10,6 +10,7 @@ import { useApi } from '@/hooks/useApi'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { Subscription } from '@/@types/subscription'
 import { SubscriptionsTableSkeleton } from '@/components/skeletons/subscriptions-table-skeleton'
+import { EmptyState } from '@/components/empty-state'
 
 interface ProductSubscriptionsProps {
   productId: string
@@ -202,15 +203,11 @@ export function ProductSubscriptions({ productId }: ProductSubscriptionsProps) {
           )
         : !hasSubscriptions
             ? (
-              <div className="flex flex-col items-center justify-center py-10">
-                <ArrowsClockwiseIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-                <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                  Configure sua assinatura personalizada
-                </h3>
-                <p className="text-neutral-600 text-center max-w-md">
-                  Crie planos recorrentes, automatize cobranças e garanta faturamento previsível.
-                </p>
-              </div>
+              <EmptyState
+                icon={<ArrowsClockwiseIcon size={28} weight="bold" className="text-neutral-400" />}
+                title="Configure sua assinatura personalizada"
+                description="Crie planos recorrentes, automatize cobranças e garanta faturamento previsível."
+              />
               )
             : (
               <div className="overflow-hidden">

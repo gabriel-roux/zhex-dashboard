@@ -10,6 +10,7 @@ import { CheckoutsTableSkeleton } from '@/components/skeletons/checkouts-table-s
 import { Checkout } from '@/@types/checkout'
 import { CreateCheckoutModal } from './create-checkout'
 import Link from 'next/link'
+import { EmptyState } from '@/components/empty-state'
 
 interface CheckoutsProps {
   productId: string
@@ -137,15 +138,11 @@ export function Checkouts({ productId }: CheckoutsProps) {
         : checkouts?.length === 0
           ? (
         /* Empty State */
-            <div className="flex flex-col items-center justify-center py-10">
-              <BrowserIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-              <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                Crie seu primeiro checkout personalizado
-              </h3>
-              <p className="text-neutral-600 text-center max-w-md">
-                Personalize a experiência de compra dos seus clientes com cores, layouts e funcionalidades exclusivas.
-              </p>
-            </div>
+            <EmptyState
+              icon={<BrowserIcon size={28} weight="bold" className="text-neutral-400" />}
+              title="Crie seu primeiro checkout personalizado"
+              description="Personalize a experiência de compra dos seus clientes com cores, layouts e funcionalidades exclusivas."
+            />
             )
           : (
         /* Table State */

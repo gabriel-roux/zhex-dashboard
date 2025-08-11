@@ -1,3 +1,5 @@
+'use client'
+
 import { NivelDiamond } from '@/assets/images/nivel-diamond'
 import { Button } from '@/components/button'
 import { Container } from '@/components/container'
@@ -7,8 +9,70 @@ import BrazilFlag from '@/assets/images/flags/brazil.svg'
 import Image from 'next/image'
 import { TinyChart } from '../widgets/cash-flow'
 import { FinancesList } from './finances-list'
+import { useApi } from '@/hooks/useApi'
+import { WalletBalance } from '@/@types/wallet'
+import { useEffect, useState } from 'react'
+import { WithdrawBalanceModal } from './withdraw-balance-modal'
+import { Skeleton } from '@/components/skeleton'
 
 export default function FinancesPage() {
+  const api = useApi()
+  const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [openWithdrawModal, setOpenWithdrawModal] = useState(false)
+  useEffect(() => {
+    const loadWalletBalance = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = await api.get<{ success: boolean; data?: WalletBalance; message?: string }>('/wallet/balance')
+
+        if (response.data.success && response.data.data) {
+          setWalletBalance(response.data.data)
+        } else {
+          setError(response.data.message || 'Erro ao carregar saldo da carteira')
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error
+          ? err.message
+          : 'Erro ao carregar saldo da carteira'
+        setError(errorMessage)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadWalletBalance()
+  }, [])
+
+  const formatCurrency = (value: number, currency: string = 'BRL') => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency,
+    }).format(value)
+  }
+
+  const handleWithdraw = () => {
+    setOpenWithdrawModal(true)
+  }
+
+  const handleScheduleTransfer = async () => {
+    // TODO: Implementar agendamento de transferência
+    console.log('Implementar agendamento de transferência')
+  }
+
+  if (error) {
+    return (
+      <Container className="mt-6 px-2">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">Erro: {error}</p>
+        </div>
+      </Container>
+    )
+  }
+
   return (
     <>
       <Container className="mt-6 px-2">
@@ -27,21 +91,42 @@ export default function FinancesPage() {
             <Image src={BrazilFlag} alt="Brazil" width={60} height={48} />
             <div>
               <p className="text-neutral-500 font-araboto font-medium text-sm">Total para saque</p>
-              <h2 className="text-2xl font-bold text-neutral-1000 font-araboto">R$ 147.673,45</h2>
+              <h2 className="text-2xl font-bold text-neutral-1000 font-araboto">
+                {loading
+                  ? <Skeleton className="w-32 h-6 rounded-lg" />
+                  : walletBalance
+                    ? formatCurrency(walletBalance.availableBalanceInReais, walletBalance.currency)
+                    : 'R$ 0,00'}
+              </h2>
             </div>
           </div>
 
           <p className="text-neutral-600 font-araboto text-sm mb-6">
-            D-1, it is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
+            Saldo disponível para saque imediato. Valores em processamento ficam disponíveis em D+1.
           </p>
 
           <div className="flex gap-3">
-            <Button variant="primary" size="medium" className="flex items-center gap-2 h-11 text-base">
-              <ArrowUpIcon weight="bold" size={18} />
-              Retirar agora
-            </Button>
+            {loading
+              ? <Skeleton className="w-32 h-11 rounded-lg" />
+              : (
+                <Button
+                  variant="primary"
+                  size="medium"
+                  className="flex items-center gap-2 h-11 text-base"
+                  onClick={handleWithdraw}
+                  disabled={!walletBalance || walletBalance.availableBalance <= 0}
+                >
+                  <ArrowUpIcon weight="bold" size={18} />
+                  Retirar agora
+                </Button>
+                )}
 
-            <Button variant="ghost" size="medium" className="flex items-center gap-2 h-11 text-base">
+            <Button
+              variant="ghost"
+              size="medium"
+              className="flex items-center gap-2 h-11 text-base"
+              onClick={handleScheduleTransfer}
+            >
               <CalendarDotsIcon weight="bold" size={18} />
               Agendar transferência
             </Button>
@@ -90,7 +175,7 @@ export default function FinancesPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-[480px] h-[435px] rounded-lg border border-[#EAEEF4] bg-gradient-to-br from-zhex-secondary-400/20 from-[16%] to-zhex-base-500/20 p-6 flex flex-col gap-3">
+        <div className="w-full max-w-[480px] h-[418px] rounded-lg border border-[#EAEEF4] bg-gradient-to-br from-zhex-secondary-400/20 from-[16%] to-zhex-base-500/20 p-6 flex flex-col gap-3">
           <header className="w-full flex items-center justify-between gap-3">
             <h2 className="flex items-center gap-1.5 text-neutral-1000 font-medium text-lg">
               <BankIcon size={20} />
@@ -98,11 +183,12 @@ export default function FinancesPage() {
             </h2>
           </header>
           <div className="">
-            <p className="text-base font-medium text-neutral-600">
-              Saldo Total:
-            </p>
             <span className="text-2xl font-semibold font-araboto">
-              R$ 423.244,93
+              {loading
+                ? <Skeleton className="w-32 h-6 rounded-lg" />
+                : walletBalance
+                  ? formatCurrency(walletBalance.totalBalanceInReais, walletBalance.currency)
+                  : 'R$ 0,00'}
             </span>
           </div>
 
@@ -114,14 +200,20 @@ export default function FinancesPage() {
                 <p className="text-base font-medium text-neutral-600">
                   Disponível em breve:
                 </p>
-                <span className="text-neutral-1000 font-bold text-xl font-araboto">R$ 23.244,93</span>
+                <span className="text-neutral-1000 font-bold text-xl font-araboto">
+                  {loading
+                    ? <Skeleton className="w-24 h-6 rounded-lg" />
+                    : walletBalance
+                      ? formatCurrency(walletBalance.processingBalanceInReais, walletBalance.currency)
+                      : 'R$ 0,00'}
+                </span>
               </div>
 
               <TinyChart />
             </div>
 
             <p className="text-neutral-600 font-araboto text-sm px-4 pb-2">
-              D-1, it is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
+              Valores em processamento ficam disponíveis em D+1. Estes valores ainda não podem ser sacados.
             </p>
 
           </div>
@@ -133,14 +225,20 @@ export default function FinancesPage() {
                 <p className="text-base font-medium text-neutral-600">
                   Saldo em reserva:
                 </p>
-                <span className="text-neutral-1000 font-bold text-xl font-araboto">R$ 23.244,93</span>
+                <span className="text-neutral-1000 font-bold text-xl font-araboto">
+                  {loading
+                    ? <Skeleton className="w-24 h-6 rounded-lg" />
+                    : walletBalance
+                      ? formatCurrency(walletBalance.reservedBalanceInReais, walletBalance.currency)
+                      : 'R$ 0,00'}
+                </span>
               </div>
 
               <TinyChart />
             </div>
 
             <p className="text-neutral-600 font-araboto text-sm px-4 pb-2">
-              D-1, it is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
+              Valores reservados para uso futuro. Estes valores não podem ser sacados.
             </p>
 
           </div>
@@ -148,6 +246,13 @@ export default function FinancesPage() {
       </Container>
 
       <FinancesList />
+
+      <WithdrawBalanceModal
+        open={openWithdrawModal}
+        onOpenChange={setOpenWithdrawModal}
+        walletBalance={walletBalance}
+        onWithdrawCreated={() => setOpenWithdrawModal(false)}
+      />
     </>
   )
 }

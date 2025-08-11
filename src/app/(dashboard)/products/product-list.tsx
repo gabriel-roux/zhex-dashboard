@@ -8,6 +8,7 @@ import { TagIcon } from '@phosphor-icons/react'
 import { Pagination } from '@/components/pagination'
 import { useProducts } from '@/hooks/useProducts'
 import Link from 'next/link'
+import { EmptyState } from '@/components/empty-state'
 
 export function ProductList() {
   const [filter, setFilter] = useState<'Todos' | 'Ativo' | 'Inativo'>('Todos')
@@ -52,24 +53,11 @@ export function ProductList() {
           )
         : products.length === 0
           ? (
-            <div style={{ marginTop: '40px' }} className="w-full bg-white rounded-lg px-5 mb-10 flex flex-col justify-center items-center gap-4">
-              <div className="w-12 h-12 bg-zhex-base-500/15 rounded-full flex items-center justify-center">
-                <TagIcon
-                  size={28}
-                  weight="bold"
-                  className="text-zhex-base-500"
-                />
-              </div>
-
-              <div className="text-center">
-                <h2 className="text-lg font-araboto font-semibold text-neutral-950">
-                  Nenhum produto encontrado
-                </h2>
-                <p className="text-neutr-500 font-araboto">
-                  Nenhum produto encontrado. Crie um produto para começar a vender.
-                </p>
-              </div>
-            </div>
+            <EmptyState
+              icon={<TagIcon size={28} weight="bold" className="text-zhex-base-500" />}
+              title="Nenhum produto encontrado"
+              description="Nenhum produto encontrado. Crie um produto para começar a vender."
+            />
             )
           : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">

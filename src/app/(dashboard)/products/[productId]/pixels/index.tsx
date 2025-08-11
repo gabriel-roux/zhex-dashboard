@@ -10,6 +10,7 @@ import { useApi } from '@/hooks/useApi'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { Pixel } from '@/@types/pixel'
 import { PixelsTableSkeleton } from '@/components/skeletons/pixels-table-skeleton'
+import { EmptyState } from '@/components/empty-state'
 
 interface ProductPixelsProps {
   productId: string
@@ -176,16 +177,11 @@ export function ProductPixels({ productId }: ProductPixelsProps) {
           )
         : !hasPixels
             ? (
-          /* Empty State */
-              <div className="flex flex-col items-center justify-center py-10">
-                <CircuitryIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-                <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                  Você ainda não configurou nenhum pixel
-                </h3>
-                <p className="text-neutral-600 text-center max-w-md">
-                  Configure pixels para rastrear conversões e otimizar suas campanhas.
-                </p>
-              </div>
+              <EmptyState
+                icon={<CircuitryIcon size={28} weight="bold" className="text-neutral-400" />}
+                title="Você ainda não configurou nenhum pixel"
+                description="Configure pixels para rastrear conversões e otimizar suas campanhas."
+              />
               )
             : (
           /* Table State */

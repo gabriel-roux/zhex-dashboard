@@ -10,6 +10,7 @@ import { useApi } from '@/hooks/useApi'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { Coupon } from '@/@types/coupon'
 import { CouponsTableSkeleton } from '@/components/skeletons/coupons-table-skeleton'
+import { EmptyState } from '@/components/empty-state'
 
 interface ProductCouponsProps {
   productId: string
@@ -186,15 +187,11 @@ export function ProductCoupons({ productId }: ProductCouponsProps) {
         : !hasCoupons
             ? (
           /* Empty State */
-              <div className="flex flex-col items-center justify-center py-10">
-                <TicketIcon size={32} weight="bold" className="text-neutral-400 mb-4" />
-                <h3 className="text-lg font-araboto font-medium text-neutral-1000 mb-1">
-                  Você ainda não criou nenhum cupom de desconto
-                </h3>
-                <p className="text-neutral-600 text-center max-w-md">
-                  Crie descontos para aumentar suas vendas.
-                </p>
-              </div>
+              <EmptyState
+                icon={<TicketIcon size={28} weight="bold" className="text-neutral-400" />}
+                title="Você ainda não criou nenhum cupom de desconto"
+                description="Crie descontos para aumentar suas vendas."
+              />
               )
             : (
           /* Table State */
